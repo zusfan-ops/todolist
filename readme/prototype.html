@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KerjaKu — Prototype</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      ink:  {900:'#141B2E',700:'#2A3550',500:'#4A5670',300:'#9AA3B8',100:'#E7EAF1',50:'#F5F6FA'},
+      vest: {500:'#F5A300',600:'#DD8F00',100:'#FFF1CF'},
+      leaf: {500:'#2F9E6E',100:'#DCF3E8'},
+      brick:{500:'#D6482F',100:'#FBE3DE'}
+    },
+    fontFamily: { disp:['Archivo','sans-serif'], mono:['"JetBrains Mono"','monospace'] }
+  }}
+}
+</script>
+<style>
+  body{background:#DDE1EA;-webkit-tap-highlight-color:transparent}
+  .hazard{background-image:repeating-linear-gradient(45deg,#F5A300 0 8px,#141B2E 8px 16px)}
+  .prog-track{background:#E7EAF1;border-radius:99px;overflow:hidden;height:6px}
+  .prog-fill{height:100%;border-radius:99px;background:#F5A300;transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .prog-fill.done{background:#2F9E6E}
+  .kanban-scroll{scroll-snap-type:x mandatory}
+  .kanban-scroll>div{scroll-snap-align:center}
+  .sortable-ghost{opacity:.35}
+  .sortable-chosen{box-shadow:0 8px 24px rgba(20,27,46,.25)!important;transform:rotate(1.5deg)}
+  [x-cloak]{display:none!important}
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{scrollbar-width:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body class="flex justify-center min-h-screen py-4 sm:py-8">
+
+<div x-data="app()" x-init="init()" class="w-full max-w-[420px] bg-ink-50 sm:rounded-[2rem] shadow-2xl overflow-hidden relative flex flex-col" style="height:min(860px,100dvh)">
+
+  <!-- ============ HEADER ============ -->
+  <header class="bg-ink-900 text-white px-5 pt-5 pb-4 shrink-0 relative overflow-hidden">
+    <div class="hazard absolute top-0 left-0 right-0 h-1.5"></div>
+    <div class="flex items-center justify-between mt-1">
+      <div>
+        <h1 class="font-disp font-800 text-xl tracking-tight" style="font-weight:800">Kerja<span class="text-vest-500">Ku</span></h1>
+        <p class="text-ink-300 text-xs" x-text="tanggalHariIni"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-full"
+              :class="online?'bg-leaf-500/20 text-leaf-100':'bg-vest-500/20 text-vest-100'">
+          <span class="w-1.5 h-1.5 rounded-full" :class="online?'bg-leaf-500':'bg-vest-500 animate-pulse'"></span>
+          <span x-text="online?'Tersinkron':'2 antre'"></span>
+        </span>
+        <div class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">Y</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ TIMER BAR (persist) ============ -->
+  <div x-show="timer.taskId" x-cloak
+       class="bg-ink-700 text-white px-5 py-2.5 flex items-center justify-between shrink-0 border-b-2 border-vest-500">
+    <div class="min-w-0">
+      <p class="text-[10px] uppercase tracking-wider text-vest-500 font-disp font-bold">Timer berjalan</p>
+      <p class="text-sm truncate" x-text="taskById(timer.taskId)?.title"></p>
+    </div>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="font-mono font-bold text-lg tabular-nums" x-text="timerDisplay"></span>
+      <button @click="stopTimer()" class="bg-brick-500 hover:bg-brick-500/90 text-white text-xs font-disp font-bold px-3 py-1.5 rounded-lg">STOP</button>
+    </div>
+  </div>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+
+    <!-- ===== TAB: HARI INI ===== -->
+    <section x-show="tab==='today'" class="px-5 pt-5 space-y-5">
+      <!-- ringkasan -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-white rounded-xl p-3 border border-ink-100">
+          <p class="font-mono font-bold text-xl text-ink-900" x-text="jamHariIni"></p>
+          <p class="text-[10px] text-ink-500 uppercase tracking-wide">Jam kerja</p>
+        </div>
+        <div class="bg-white rounded-xl p-3 border border-ink-100">
+          <p class="font-mono font-bold text-xl text-leaf-500" x-text="doneToday"></p>
+          <p class="text-[10px] text-ink-500 uppercase tracking-wide">Selesai</p>
+        </div>
+        <div class="bg-white rounded-xl p-3 border border-ink-100">
+          <p class="font-mono font-bold text-xl text-brick-500" x-text="dueToday.length"></p>
+          <p class="text-[10px] text-ink-500 uppercase tracking-wide">Due hari ini</p>
+        </div>
+      </div>
+
+      <!-- due hari ini -->
+      <div>
+        <h2 class="font-disp font-bold text-ink-900 text-sm uppercase tracking-wider mb-2">Jatuh tempo hari ini</h2>
+        <div class="space-y-2.5">
+          <template x-for="t in dueToday" :key="t.id">
+            <div @click="openTask(t.id)"><div x-html="cardHtml(t)"></div></div>
+          </template>
+          <p x-show="!dueToday.length" class="text-xs text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-4 text-center">Tidak ada tenggat hari ini. Tambahkan task dengan tombol +</p>
+        </div>
+      </div>
+
+      <!-- sedang dikerjakan -->
+      <div>
+        <h2 class="font-disp font-bold text-ink-900 text-sm uppercase tracking-wider mb-2">Sedang dikerjakan</h2>
+        <div class="space-y-2.5">
+          <template x-for="t in tasksIn('doing')" :key="t.id">
+            <div @click="openTask(t.id)"><div x-html="cardHtml(t)"></div></div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: KANBAN ===== -->
+    <section x-show="tab==='kanban'" x-cloak class="pt-4">
+      <div class="px-5 flex gap-2 mb-3 overflow-x-auto no-scrollbar">
+        <template x-for="p in projects" :key="p.id">
+          <button @click="activeProject=p.id"
+            class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border"
+            :class="activeProject===p.id?'bg-ink-900 text-white border-ink-900':'bg-white text-ink-700 border-ink-100'"
+            x-text="p.name"></button>
+        </template>
+      </div>
+      <div class="kanban-scroll flex gap-3 overflow-x-auto px-5 pb-2 no-scrollbar">
+        <template x-for="col in columns" :key="col.slug">
+          <div class="w-[78%] shrink-0">
+            <div class="flex items-center justify-between mb-2 px-1">
+              <h3 class="font-disp font-bold text-xs uppercase tracking-wider"
+                  :class="col.slug==='done'?'text-leaf-500':'text-ink-700'" x-text="col.name"></h3>
+              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                    :class="col.wip && tasksIn(col.slug,activeProject).length>col.wip ? 'bg-vest-100 text-vest-600 font-bold':'bg-ink-100 text-ink-500'"
+                    x-text="tasksIn(col.slug,activeProject).length + (col.wip?'/'+col.wip:'')"></span>
+            </div>
+            <div class="space-y-2.5 min-h-[120px] rounded-xl p-1" :data-col="col.slug" x-ref="kb">
+              <template x-for="t in tasksIn(col.slug,activeProject)" :key="t.id">
+                <div :data-id="t.id" @click="openTask(t.id)"><div x-html="cardHtml(t)"></div></div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+      <p class="text-center text-[10px] text-ink-500 mt-1">Geser kartu antar kolom · geser layar untuk kolom lain</p>
+    </section>
+
+    <!-- ===== TAB: LOG ===== -->
+    <section x-show="tab==='log'" x-cloak class="px-5 pt-5 space-y-4">
+      <h2 class="font-disp font-bold text-ink-900 text-sm uppercase tracking-wider">Rekam Pekerjaan</h2>
+      <div class="bg-ink-900 rounded-2xl p-4 text-white">
+        <p class="text-[10px] uppercase tracking-wider text-ink-300 mb-2">Minggu ini</p>
+        <div class="flex items-end gap-1.5 h-20">
+          <template x-for="(h,i) in [3.5,5,2,6.5,4,1,0]" :key="i">
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full rounded-t bg-vest-500" :style="'height:'+(h/6.5*100)+'%'" :class="h===0&&'bg-ink-700'"></div>
+              <span class="text-[9px] text-ink-300 font-mono" x-text="['S','S','R','K','J','S','M'][i]"></span>
+            </div>
+          </template>
+        </div>
+        <p class="font-mono text-sm mt-2"><span class="font-bold text-vest-500">22 j</span> <span class="text-ink-300">total · target 30 j</span></p>
+      </div>
+      <div class="space-y-2">
+        <template x-for="l in logs" :key="l.id">
+          <div class="bg-white rounded-xl border border-ink-100 p-3 flex items-center justify-between">
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-ink-900 truncate" x-text="taskById(l.taskId)?.title"></p>
+              <p class="text-[11px] text-ink-500" x-text="l.when + (l.note ? ' · '+l.note : '')"></p>
+            </div>
+            <div class="text-right shrink-0 ml-3">
+              <p class="font-mono font-bold text-ink-900" x-text="l.dur"></p>
+              <p class="text-[9px] uppercase text-ink-300 font-mono" x-text="l.source"></p>
+            </div>
+          </div>
+        </template>
+      </div>
+      <button class="w-full text-xs font-disp font-bold text-ink-700 border-2 border-dashed border-ink-300 rounded-xl py-3">+ Catat manual</button>
+    </section>
+
+    <!-- ===== TAB: FOTO ===== -->
+    <section x-show="tab==='photos'" x-cloak class="px-5 pt-5">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-disp font-bold text-ink-900 text-sm uppercase tracking-wider">Dokumentasi</h2>
+        <label class="bg-ink-900 text-white text-xs font-disp font-bold px-3 py-2 rounded-lg cursor-pointer">
+          📷 Ambil foto
+          <input type="file" accept="image/*" capture="environment" class="hidden" @change="addPhoto($event)">
+        </label>
+      </div>
+      <div class="grid grid-cols-3 gap-1.5">
+        <template x-for="ph in photos" :key="ph.id">
+          <div class="aspect-square rounded-lg overflow-hidden relative bg-ink-100">
+            <img :src="ph.src" class="w-full h-full object-cover">
+            <span class="absolute bottom-1 left-1 text-[8px] font-mono font-bold px-1 rounded text-white"
+                  :class="{before:'bg-ink-700',progress:'bg-vest-600',after:'bg-leaf-500',proof:'bg-brick-500'}[ph.type]"
+                  x-text="{before:'SEBELUM',progress:'PROSES',after:'SESUDAH',proof:'BUKTI'}[ph.type]"></span>
+          </div>
+        </template>
+      </div>
+      <p x-show="!photos.length" class="text-xs text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-6 text-center">Belum ada foto. Jepret dokumentasi pekerjaan pertamamu.</p>
+    </section>
+  </main>
+
+  <!-- ============ FAB ============ -->
+  <button @click="quickAdd=true" class="absolute bottom-20 right-5 w-14 h-14 rounded-2xl bg-vest-500 text-ink-900 text-3xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform">+</button>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-ink-100 grid grid-cols-4 px-2 pt-1 pb-3">
+    <template x-for="n in [['today','Hari Ini','☀️'],['kanban','Kanban','▦'],['log','Log','⏱'],['photos','Foto','📷']]" :key="n[0]">
+      <button @click="tab=n[0]" class="flex flex-col items-center gap-0.5 py-1.5 rounded-xl"
+              :class="tab===n[0]?'text-ink-900':'text-ink-300'">
+        <span class="text-lg leading-none" x-text="n[2]"></span>
+        <span class="text-[10px] font-disp font-bold" x-text="n[1]"></span>
+        <span class="w-4 h-0.5 rounded-full" :class="tab===n[0]?'bg-vest-500':'bg-transparent'"></span>
+      </button>
+    </template>
+  </nav>
+
+  <!-- ============ TASK DETAIL SHEET ============ -->
+  <div x-show="detail" x-cloak @click.self="detail=null"
+       class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
+    <div class="bg-white w-full rounded-t-3xl max-h-[85%] overflow-y-auto no-scrollbar p-5"
+         x-transition:enter="transition transform duration-200" x-transition:enter-start="translate-y-full">
+      <template x-if="detail">
+        <div>
+          <div class="w-10 h-1 bg-ink-100 rounded-full mx-auto mb-4"></div>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-disp font-bold uppercase px-2 py-0.5 rounded"
+                    :style="'background:'+projById(detail.projectId).color+'22;color:'+projById(detail.projectId).color"
+                    x-text="projById(detail.projectId).name"></span>
+              <h3 class="font-disp font-bold text-lg text-ink-900 mt-1.5" x-text="detail.title"></h3>
+            </div>
+            <span x-show="detail.priority==='urgent'" class="hazard text-[9px] font-disp font-bold text-white px-2 py-1 rounded shrink-0">MENDESAK</span>
+          </div>
+
+          <!-- progress -->
+          <div class="mt-4">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-ink-500">Progress</span>
+              <span class="font-mono font-bold" :class="progress(detail)===100?'text-leaf-500':'text-ink-900'" x-text="progress(detail)+'%'"></span>
+            </div>
+            <div class="prog-track h-2"><div class="prog-fill" :class="progress(detail)===100&&'done'" :style="'width:'+progress(detail)+'%'"></div></div>
+          </div>
+
+          <!-- checklist -->
+          <div class="mt-5">
+            <h4 class="font-disp font-bold text-xs uppercase tracking-wider text-ink-700 mb-2">Checklist</h4>
+            <div class="space-y-1.5">
+              <template x-for="c in detail.checklist" :key="c.id">
+                <label class="flex items-center gap-2.5 bg-ink-50 rounded-lg px-3 py-2.5 cursor-pointer">
+                  <input type="checkbox" x-model="c.done" class="w-4 h-4 accent-leaf-500">
+                  <span class="text-sm" :class="c.done?'line-through text-ink-300':'text-ink-900'" x-text="c.body"></span>
+                </label>
+              </template>
+            </div>
+          </div>
+
+          <!-- aksi -->
+          <div class="grid grid-cols-2 gap-2 mt-5">
+            <button @click="startTimer(detail.id)"
+              class="bg-ink-900 text-white font-disp font-bold text-sm py-3 rounded-xl"
+              :class="timer.taskId===detail.id&&'opacity-40'"
+              x-text="timer.taskId===detail.id?'⏱ Berjalan…':'⏱ Mulai timer'"></button>
+            <label class="bg-vest-500 text-ink-900 font-disp font-bold text-sm py-3 rounded-xl text-center cursor-pointer">
+              📷 Foto
+              <input type="file" accept="image/*" capture="environment" class="hidden" @change="addPhoto($event,detail.id)">
+            </label>
+          </div>
+
+          <!-- timeline -->
+          <div class="mt-5 mb-2">
+            <h4 class="font-disp font-bold text-xs uppercase tracking-wider text-ink-700 mb-2">Aktivitas</h4>
+            <div class="border-l-2 border-ink-100 pl-3 space-y-2.5">
+              <template x-for="(a,i) in detail.activity" :key="i">
+                <p class="text-xs text-ink-500"><span class="font-mono text-ink-300" x-text="a[0]"></span> · <span x-text="a[1]"></span></p>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ============ QUICK ADD ============ -->
+  <div x-show="quickAdd" x-cloak @click.self="quickAdd=false" class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
+    <div class="bg-white w-full rounded-t-3xl p-5" x-transition:enter="transition transform duration-200" x-transition:enter-start="translate-y-full">
+      <h3 class="font-disp font-bold text-ink-900 mb-3">Task baru</h3>
+      <input x-model="newTitle" @keyup.enter="createTask()" placeholder="Apa yang mau dikerjakan?"
+             class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vest-500">
+      <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+        <template x-for="p in projects" :key="p.id">
+          <button @click="newProject=p.id" class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border"
+            :class="newProject===p.id?'text-white border-transparent':'bg-white text-ink-700 border-ink-100'"
+            :style="newProject===p.id&&('background:'+p.color)" x-text="p.name"></button>
+        </template>
+      </div>
+      <button @click="createTask()" class="w-full bg-ink-900 text-white font-disp font-bold py-3.5 rounded-xl mt-4">Simpan ke Backlog</button>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div x-show="toast" x-cloak x-transition class="absolute bottom-24 left-1/2 -translate-x-1/2 bg-ink-900 text-white text-xs px-4 py-2.5 rounded-full shadow-lg z-30" x-text="toast"></div>
+</div>
+
+<script>
+function app(){
+  return {
+    tab:'today', online:true, detail:null, quickAdd:false, toast:'',
+    newTitle:'', newProject:1, activeProject:1,
+    timer:{taskId:null,started:null}, tick:0,
+    projects:[
+      {id:1,name:'SwaMart',color:'#2A6DD6'},
+      {id:2,name:'Cak Goto',color:'#7A4F2B'},
+      {id:3,name:'Rimba Aviary',color:'#2F9E6E'},
+    ],
+    columns:[
+      {slug:'backlog',name:'Backlog',wip:null},
+      {slug:'doing',name:'Dikerjakan',wip:3},
+      {slug:'review',name:'Review',wip:null},
+      {slug:'done',name:'Selesai',wip:null},
+    ],
+    tasks:[
+      {id:1,projectId:1,col:'doing',title:'Integrasi Midtrans sandbox',priority:'high',due:'today',
+        checklist:[{id:1,body:'Setup server key',done:true},{id:2,body:'Callback handler',done:true},{id:3,body:'Test QRIS',done:false},{id:4,body:'Test kartu',done:false}],
+        activity:[['09.15','Timer dimulai'],['Kemarin','Pindah ke Dikerjakan'],['2 hari lalu','Task dibuat']]},
+      {id:2,projectId:3,col:'doing',title:'Pasang rangka aviary sisi timur',priority:'urgent',due:'today',
+        checklist:[{id:1,body:'Ukur & potong hollow',done:true},{id:2,body:'Las rangka bawah',done:true},{id:3,body:'Las rangka atas',done:true},{id:4,body:'Cat dasar anti karat',done:false}],
+        activity:[['07.30','Foto SEBELUM ditambahkan'],['Kemarin','3 checklist selesai']]},
+      {id:3,projectId:2,col:'backlog',title:'Foto produk roasting batch Juli',priority:'normal',due:null,
+        checklist:[{id:1,body:'Siapkan properti',done:false},{id:2,body:'Foto 5 varian',done:false}],
+        activity:[['Kemarin','Task dibuat']]},
+      {id:4,projectId:1,col:'review',title:'Skema tabel orders + channel',priority:'normal',due:null,
+        checklist:[{id:1,body:'Migration',done:true},{id:2,body:'Seeder',done:true}],
+        activity:[['Kemarin','Pindah ke Review']]},
+      {id:5,projectId:2,col:'done',title:'Restock kemasan 250g',priority:'low',due:null,
+        checklist:[{id:1,body:'Order supplier',done:true},{id:2,body:'Terima & cek',done:true}],
+        activity:[['Kemarin','Selesai']]},
+      {id:6,projectId:1,col:'backlog',title:'Uji GPS gating radius 100m',priority:'high',due:'today',
+        checklist:[],activity:[['2 hari lalu','Task dibuat']]},
+    ],
+    logs:[
+      {id:1,taskId:1,when:'Hari ini 09.15–11.40',dur:'2j 25m',source:'timer',note:''},
+      {id:2,taskId:2,when:'Kemarin 14.00',dur:'3j 00m',source:'manual',note:'las rangka'},
+      {id:3,taskId:4,when:'Kemarin 08.10–09.05',dur:'0j 55m',source:'timer',note:''},
+    ],
+    photos:[],
+    get tanggalHariIni(){ return new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'}) + ' · WITA' },
+    get dueToday(){ return this.tasks.filter(t=>t.due==='today'&&t.col!=='done') },
+    get doneToday(){ return this.tasks.filter(t=>t.col==='done').length },
+    get jamHariIni(){ this.tick; if(!this.timer.taskId) return '2j 25m';
+      const m=145+Math.floor((Date.now()-this.timer.started)/60000); return Math.floor(m/60)+'j '+(m%60)+'m' },
+    get timerDisplay(){ this.tick; if(!this.timer.started) return '00:00:00';
+      const s=Math.floor((Date.now()-this.timer.started)/1000);
+      const p=n=>String(n).padStart(2,'0'); return p(Math.floor(s/3600))+':'+p(Math.floor(s%3600/60))+':'+p(s%60) },
+    taskById(id){ return this.tasks.find(t=>t.id===id) },
+    projById(id){ return this.projects.find(p=>p.id===id) },
+    tasksIn(col,proj){ return this.tasks.filter(t=>t.col===col&&(!proj||t.projectId===proj)) },
+    progress(t){
+      if(t.col==='done') return 100;
+      if(t.checklist.length){ return Math.round(t.checklist.filter(c=>c.done).length/t.checklist.length*100) }
+      return {backlog:0,doing:25,review:75}[t.col]??0;
+    },
+    cardHtml(t){
+      const p=this.progress(t), proj=this.projById(t.projectId);
+      const prio=t.priority==='urgent'
+        ? '<span class="hazard text-[8px] font-bold text-white px-1.5 py-0.5 rounded" style="font-family:Archivo">MENDESAK</span>'
+        : t.priority==='high' ? '<span class="text-[8px] font-bold text-brick-500 bg-brick-100 px-1.5 py-0.5 rounded" style="font-family:Archivo">TINGGI</span>':'';
+      const cl=t.checklist.length?`<span class="font-mono text-[10px] text-ink-500">☑ ${t.checklist.filter(c=>c.done).length}/${t.checklist.length}</span>`:'';
+      const due=t.due==='today'?'<span class="font-mono text-[10px] text-brick-500 font-bold">● hari ini</span>':'';
+      return `<div class="bg-white rounded-xl border border-ink-100 p-3 cursor-pointer active:scale-[.98] transition-transform">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[9px] font-bold uppercase" style="font-family:Archivo;color:${proj.color}">${proj.name}</span>${prio}
+        </div>
+        <p class="text-sm font-medium text-ink-900 leading-snug">${t.title}</p>
+        <div class="prog-track mt-2.5"><div class="prog-fill ${p===100?'done':''}" style="width:${p}%"></div></div>
+        <div class="flex items-center justify-between mt-1.5">
+          <span class="font-mono text-[10px] font-bold ${p===100?'text-leaf-500':'text-ink-700'}">${p}%</span>
+          <div class="flex gap-2">${cl}${due}</div>
+        </div></div>`;
+    },
+    openTask(id){ this.detail=this.taskById(id) },
+    createTask(){
+      if(!this.newTitle.trim()) return;
+      const id=Math.max(...this.tasks.map(t=>t.id))+1;
+      this.tasks.push({id,projectId:this.newProject,col:'backlog',title:this.newTitle.trim(),priority:'normal',due:null,checklist:[],activity:[['Baru saja','Task dibuat']]});
+      this.newTitle=''; this.quickAdd=false; this.showToast('Task masuk Backlog');
+    },
+    startTimer(taskId){
+      if(this.timer.taskId===taskId) return;
+      if(this.timer.taskId && !confirm('Timer lain sedang berjalan. Hentikan dan mulai yang baru?')) return;
+      this.timer={taskId,started:Date.now()}; this.detail=null; this.showToast('Timer dimulai ⏱');
+    },
+    stopTimer(){
+      const t=this.taskById(this.timer.taskId);
+      const s=Math.max(1,Math.round((Date.now()-this.timer.started)/60000));
+      this.logs.unshift({id:Date.now(),taskId:this.timer.taskId,when:'Hari ini',dur:'0j '+s+'m',source:'timer',note:''});
+      this.timer={taskId:null,started:null}; this.showToast('Tercatat: '+t.title);
+    },
+    addPhoto(e,taskId){
+      const f=e.target.files[0]; if(!f) return;
+      const src=URL.createObjectURL(f);
+      this.photos.unshift({id:Date.now(),src,type:'progress',taskId:taskId||null});
+      if(taskId){ this.taskById(taskId).activity.unshift(['Baru saja','Foto PROSES ditambahkan']); }
+      this.showToast('Foto tersimpan 📷'); if(!taskId) this.tab='photos';
+      e.target.value='';
+    },
+    showToast(m){ this.toast=m; setTimeout(()=>this.toast='',2200) },
+    init(){
+      setInterval(()=>this.tick++,1000);
+      this.$nextTick(()=>{
+        document.querySelectorAll('[data-col]').forEach(el=>{
+          new Sortable(el,{group:'kanban',animation:180,delay:120,delayOnTouchOnly:true,
+            onEnd:(ev)=>{
+              const id=+ev.item.dataset.id, to=ev.to.dataset.col, t=this.taskById(id);
+              if(!t||t.col===to) return;
+              if(to==='done'&&this.progress(t)<100&&!confirm(`Checklist belum selesai (${this.progress(t)}%). Tetap tandai selesai?`)){ this.tasks=[...this.tasks]; return; }
+              t.activity.unshift(['Baru saja',`Pindah ke ${this.columns.find(c=>c.slug===to).name}`]);
+              t.col=to; this.tasks=[...this.tasks];
+              if(to==='done'){ if(this.timer.taskId===id) this.stopTimer(); this.showToast('Selesai ✔'); }
+            }});
+        });
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>
