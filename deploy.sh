@@ -1,17 +1,21 @@
 #!/bin/bash
 # =============================================================
 # KerjaKu — server-side deploy script (aaPanel)
-# Dijalankan otomatis oleh GitHub Actions via SSH setiap push
-# ke branch main. Bisa juga dijalankan manual: bash deploy.sh
+# Dipicu oleh check-deploy.sh (cron, polling GitHub tiap menit).
+# Repo public → server pull lewat HTTPS, tidak perlu SSH masuk
+# dari GitHub Actions sama sekali. Bisa juga dijalankan manual:
+# bash deploy.sh
 # =============================================================
 set -euo pipefail
 
-# Sesuaikan dengan path situs & binary PHP aaPanel kamu.
-# Jangan andalkan `php` polos dari PATH — di server ini `/usr/bin/php` adalah
-# PHP sistem Ubuntu yang salah nyantol ke .so milik build PHP aaPanel dan
-# crash (symbol lookup error). Binary aaPanel yang sehat ada di sini:
+# Jangan andalkan `php`/`npm` polos dari PATH — proses cron/PHP-FPM sering
+# punya PATH minim yang beda dari sesi SSH interaktif, dan di server ini
+# PHP sistem Ubuntu (/usr/bin/php) juga pernah salah nyantol ke .so milik
+# build PHP aaPanel (symbol lookup error). Selalu pakai path lengkap:
 APP_DIR="${APP_DIR:-/www/wwwroot/kerjaku.ordr.my.id/todolist}"
 PHP_BIN="${PHP_BIN:-/www/server/php/83/bin/php}"
+NODE_BIN_DIR="${NODE_BIN_DIR:-/www/server/nvm/versions/node/v20.20.2/bin}"
+export PATH="$NODE_BIN_DIR:$PATH"
 
 cd "$APP_DIR"
 
@@ -24,6 +28,10 @@ git reset --hard origin/main
 
 echo "==> Install dependensi composer (tanpa dev)"
 "$PHP_BIN" "$(command -v composer)" install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+echo "==> Build asset Vite"
+npm ci
+npm run build
 
 echo "==> Jalankan migrasi database"
 $PHP_BIN artisan migrate --force

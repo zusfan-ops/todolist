@@ -1,13 +1,16 @@
-name: Deploy ke aaPanel
+name: CI
+
+# Server tidak menerima SSH masuk, jadi tidak ada job "deploy" di sini.
+# Deploy bersifat pull-based: server sendiri polling GitHub tiap menit
+# lewat cron (lihat check-deploy.sh) dan menjalankan deploy.sh begitu ada
+# commit baru di origin/main — repo public jadi tidak perlu kredensial.
+# Workflow ini murni penjaga kualitas: kalau test merah, kamu tahu sebelum
+# server sempat menariknya.
 
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
-
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
 
 jobs:
   test:
@@ -32,45 +35,3 @@ jobs:
 
       - name: PHPUnit
         run: php artisan test
-
-  deploy:
-    name: Build asset & deploy
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Build asset Vite
-        run: |
-          npm ci
-          npm run build
-
-      # public/build di-gitignore, jadi hasil build CI dikirim langsung
-      # ke server — server tidak perlu Node.js sama sekali.
-      - name: Kirim public/build ke server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: 'public/build'
-          target: ${{ secrets.DEPLOY_PATH }}
-          rm: false
-          overwrite: true
-
-      - name: Jalankan deploy script di server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            export APP_DIR=${{ secrets.DEPLOY_PATH }}
-            bash ${{ secrets.DEPLOY_PATH }}/deploy.sh
