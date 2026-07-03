@@ -1,4 +1,5 @@
 import { enqueue } from './db';
+import { uuidv4 } from './uuid';
 
 function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -10,7 +11,7 @@ function csrfToken() {
  * WORKFLOW.md §4). Every payload carries a client_uuid for idempotent replay.
  */
 export async function sendJson(endpoint, method, payload) {
-    payload.client_uuid = payload.client_uuid ?? crypto.randomUUID();
+    payload.client_uuid = payload.client_uuid ?? uuidv4();
 
     if (!navigator.onLine) {
         await enqueue({ endpoint, method, payload });

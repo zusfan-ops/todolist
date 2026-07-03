@@ -1,4 +1,6 @@
 import { enqueue } from './db';
+import { sha256Hex } from './hash';
+import { uuidv4 } from './uuid';
 
 const MAX_DIMENSION = 1600;
 const JPEG_QUALITY = 0.8;
@@ -17,15 +19,6 @@ async function compress(file) {
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
 }
 
-async function sha256(blob) {
-    const buffer = await blob.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-
-    return Array.from(new Uint8Array(hashBuffer))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-}
-
 function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 }
@@ -37,8 +30,8 @@ function csrfToken() {
  */
 export async function capturePhoto(file, { taskId, type, caption = '' }) {
     const compressed = await compress(file);
-    const hash = await sha256(compressed);
-    const clientUuid = crypto.randomUUID();
+    const hash = await sha256Hex(compressed);
+    const clientUuid = uuidv4();
 
     const payload = { type, sha256: hash, caption, client_uuid: clientUuid };
     const endpoint = `/api/tasks/${taskId}/photos`;

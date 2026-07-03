@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { uuidv4 } from './uuid';
 
 // Offline mutation queue — see WORKFLOW.md §4. Each row is one API call that
 // couldn't reach the server yet; `client_uuid` inside `payload` is what makes
@@ -16,7 +17,7 @@ export const OUTBOX_STATUS = {
 };
 
 export async function enqueue({ endpoint, method, payload, blob = null, blobField = null }) {
-    const uuid = payload.client_uuid ?? crypto.randomUUID();
+    const uuid = payload.client_uuid ?? uuidv4();
     payload.client_uuid = uuid;
 
     await db.outbox.add({
