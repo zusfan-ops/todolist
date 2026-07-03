@@ -8,21 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('push_subscriptions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('endpoint', 500);
+        Schema::connection(config('webpush.database_connection'))->create(config('webpush.table_name'), function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->morphs('subscribable', 'push_subscriptions_subscribable_morph_idx');
+            $table->string('endpoint', 500)->unique();
             $table->string('public_key')->nullable();
             $table->string('auth_token')->nullable();
             $table->string('content_encoding')->nullable();
             $table->timestamps();
-
-            $table->unique(['user_id', 'endpoint'], 'push_subs_user_endpoint_unique');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('push_subscriptions');
+        Schema::connection(config('webpush.database_connection'))->dropIfExists(config('webpush.table_name'));
     }
 };
