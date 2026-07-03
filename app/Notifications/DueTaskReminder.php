@@ -28,6 +28,6 @@ class DueTaskReminder extends Notification
             ->title($title)
             ->icon('/icons/icon-192.png')
             ->body($body)
-            ->data(['url' => '/']);
+            ->data(['url' => '/app']);
     }
 }

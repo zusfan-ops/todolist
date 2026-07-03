@@ -74,7 +74,8 @@ class TaskDetailSheet extends Component
 
     private function task(): Task
     {
-        return Task::with(['project', 'kanbanColumn', 'checklistItems', 'activities', 'photos', 'workLogs'])
+        return Task::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->with(['project', 'kanbanColumn', 'checklistItems', 'activities', 'photos', 'workLogs'])
             ->findOrFail($this->taskId);
     }
 

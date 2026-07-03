@@ -58,4 +58,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkLog::class);
     }
+
+    public function displayTimezone(): string
+    {
+        return $this->timezone ?: config('kerjaku.display_timezone');
+    }
 }

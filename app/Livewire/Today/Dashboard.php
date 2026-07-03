@@ -14,25 +14,26 @@ class Dashboard extends Component
 {
     public function render()
     {
-        $tz = config('kerjaku.display_timezone');
+        $tz = auth()->user()->displayTimezone();
         $today = Carbon::now($tz)->toDateString();
 
         $baseQuery = fn () => Task::query()
             ->with(['project', 'checklistItems'])
+            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
             ->whereHas('kanbanColumn', fn ($q) => $q->where('is_done_column', false));
 
         $dueToday = $baseQuery()
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<=', $today)
             ->orderByRaw('due_date < ? desc', [$today])
-            ->orderByRaw("field(priority,'urgent','high','normal','low')")
+            ->orderByRaw("case priority when 'urgent' then 1 when 'high' then 2 when 'normal' then 3 else 4 end")
             ->get();
 
         $inProgress = $baseQuery()
             ->whereHas('kanbanColumn', fn ($q) => $q->where('slug', 'doing'))
             ->get();
 
-        $activeTimerTaskIds = WorkLog::query()->active()->pluck('task_id');
+        $activeTimerTaskIds = WorkLog::query()->where('user_id', auth()->id())->active()->pluck('task_id');
         foreach ($dueToday->concat($inProgress) as $task) {
             $task->has_active_timer = $activeTimerTaskIds->contains($task->id);
         }
@@ -48,6 +49,7 @@ class Dashboard extends Component
         }
 
         $completedToday = Task::query()
+            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
             ->whereDate('completed_at', $today)
             ->count();
 

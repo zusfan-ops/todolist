@@ -28,7 +28,7 @@
                 <div class="min-w-0">
                     <p class="text-sm font-medium text-ink-900 truncate">{{ $log->task->title }}</p>
                     <p class="text-[11px] text-ink-500">
-                        {{ $log->started_at->copy()->setTimezone(config('kerjaku.display_timezone'))->translatedFormat('j M, H:i') }}
+                        {{ $log->started_at->copy()->setTimezone(auth()->user()->displayTimezone())->translatedFormat('j M, H:i') }}
                         @if ($log->note) &middot; {{ $log->note }} @endif
                     </p>
                 </div>

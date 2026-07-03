@@ -19,6 +19,6 @@ class WeeklyReportReady extends Notification
             ->title('Laporan mingguan siap')
             ->icon('/icons/icon-192.png')
             ->body('Laporan minggu lalu siap dilihat.')
-            ->data(['url' => '/log']);
+            ->data(['url' => '/app/log']);
     }
 }

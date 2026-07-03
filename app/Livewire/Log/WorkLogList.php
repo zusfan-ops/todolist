@@ -27,7 +27,7 @@ class WorkLogList extends Component
 
     public function mount(): void
     {
-        $this->date = now(config('kerjaku.display_timezone'))->toDateString();
+        $this->date = now(auth()->user()->displayTimezone())->toDateString();
     }
 
     public function openManualForm(): void
@@ -56,7 +56,7 @@ class WorkLogList extends Component
         WorkLog::create([
             'task_id' => $this->taskId,
             'user_id' => auth()->id(),
-            'started_at' => Carbon::parse($this->date, config('kerjaku.display_timezone'))->utc(),
+            'started_at' => Carbon::parse($this->date, auth()->user()->displayTimezone())->utc(),
             'duration_minutes' => $totalMinutes,
             'note' => $this->note ?: null,
             'source' => 'manual',
@@ -64,7 +64,7 @@ class WorkLogList extends Component
         ]);
 
         $this->reset(['taskId', 'durationHours', 'durationMinutes', 'note', 'showManualForm']);
-        $this->date = now(config('kerjaku.display_timezone'))->toDateString();
+        $this->date = now(auth()->user()->displayTimezone())->toDateString();
 
         $this->dispatch('toast', message: 'Log tersimpan');
     }
@@ -77,7 +77,7 @@ class WorkLogList extends Component
 
     public function render()
     {
-        $tz = config('kerjaku.display_timezone');
+        $tz = auth()->user()->displayTimezone();
         $now = now($tz);
         $startOfWeek = $now->copy()->startOfWeek();
 

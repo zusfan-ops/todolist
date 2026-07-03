@@ -26,7 +26,9 @@ class Login extends Component
             return;
         }
 
-        request()->session()->regenerate();
+        if (request()->hasSession()) {
+            request()->session()->regenerate();
+        }
 
         $this->redirectRoute('today', navigate: true);
     }

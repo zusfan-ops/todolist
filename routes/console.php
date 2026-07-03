@@ -10,6 +10,8 @@ Artisan::command('inspire', function () {
 
 // Scheduler jobs — see WORKFLOW.md §7. cPanel only needs one cron line:
 // * * * * * php artisan schedule:run
+// Trigger times use the default timezone; each command filters per-user by
+// that user's own displayTimezone() once it runs (see SendDueReminders etc).
 $tz = config('kerjaku.display_timezone');
 
 Schedule::command('kerjaku:send-due-reminders')->dailyAt('07:00')->timezone($tz);

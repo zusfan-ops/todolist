@@ -4,7 +4,6 @@ namespace App\Livewire\Kanban;
 
 use App\Exceptions\ChecklistIncompleteException;
 use App\Models\KanbanColumn;
-use App\Models\Project;
 use App\Models\Task;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -22,13 +21,17 @@ class Board extends Component
 
     public function selectProject(int $projectId): void
     {
-        $this->activeProjectId = $projectId;
+        $owned = auth()->user()->projects()->whereKey($projectId)->exists();
+
+        if ($owned) {
+            $this->activeProjectId = $projectId;
+        }
     }
 
     public function moveTask(int $taskId, int $toColumnId, ?int $position = null, bool $force = false): void
     {
-        $task = Task::findOrFail($taskId);
-        $column = KanbanColumn::findOrFail($toColumnId);
+        $task = Task::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))->findOrFail($taskId);
+        $column = KanbanColumn::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))->findOrFail($toColumnId);
 
         try {
             $result = $task->moveTo($column, $position, $force);
@@ -57,8 +60,11 @@ class Board extends Component
     {
         $projects = auth()->user()->projects()->active()->orderBy('position')->get();
 
+        // activeProjectId is a public Livewire property — a client could set it
+        // directly in the request payload, so ownership is re-checked here too
+        // (defense in depth, same pattern as the checklist/timer guards).
         $columns = collect();
-        if ($this->activeProjectId) {
+        if ($this->activeProjectId && $projects->contains('id', $this->activeProjectId)) {
             $columns = KanbanColumn::query()
                 ->where('project_id', $this->activeProjectId)
                 ->orderBy('position')

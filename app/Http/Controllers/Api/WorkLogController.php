@@ -109,7 +109,7 @@ class WorkLogController extends Controller
             ->with('task')
             ->orderByDesc('started_at')
             ->get()
-            ->groupBy(fn ($log) => $log->started_at->copy()->setTimezone(config('kerjaku.display_timezone'))->toDateString());
+            ->groupBy(fn ($log) => $log->started_at->copy()->setTimezone($request->user()->displayTimezone())->toDateString());
 
         return response()->json([
             'data' => $logs->map(fn ($group) => WorkLogResource::collection($group))->values(),

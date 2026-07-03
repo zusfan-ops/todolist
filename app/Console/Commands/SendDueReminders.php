@@ -22,10 +22,11 @@ class SendDueReminders extends Command
         }
 
         $tomorrow = $this->option('tomorrow');
-        $tz = config('kerjaku.display_timezone');
-        $targetDate = $tomorrow ? now($tz)->addDay()->toDateString() : now($tz)->toDateString();
 
         foreach (User::all() as $user) {
+            $tz = $user->displayTimezone();
+            $targetDate = $tomorrow ? now($tz)->addDay()->toDateString() : now($tz)->toDateString();
+
             $count = Task::query()
                 ->whereHas('project', fn ($q) => $q->where('user_id', $user->id))
                 ->whereHas('kanbanColumn', fn ($q) => $q->where('is_done_column', false))

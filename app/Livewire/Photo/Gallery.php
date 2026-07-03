@@ -11,10 +11,6 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Gallery extends Component
 {
-    public ?int $taskId = null;
-
-    public string $type = 'progress';
-
     public ?string $filterType = null;
 
     #[On('task-updated')]

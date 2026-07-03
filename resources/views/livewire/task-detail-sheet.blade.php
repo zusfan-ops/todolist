@@ -95,7 +95,7 @@
                     <div class="border-l-2 border-ink-100 pl-3 space-y-2.5">
                         @foreach ($task->activities as $activity)
                             <p class="text-xs text-ink-500">
-                                <span class="font-mono text-ink-300">{{ $activity->created_at->copy()->setTimezone(config('kerjaku.display_timezone'))->diffForHumans() }}</span>
+                                <span class="font-mono text-ink-300">{{ $activity->created_at->copy()->setTimezone(auth()->user()->displayTimezone())->diffForHumans() }}</span>
                                 &middot; {{ str_replace('_', ' ', $activity->event) }}
                             </p>
                         @endforeach

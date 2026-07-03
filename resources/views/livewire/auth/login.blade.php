@@ -20,4 +20,9 @@
             <span wire:loading>Memproses…</span>
         </button>
     </form>
+
+    <p class="text-center text-xs text-ink-500 mt-4">
+        Belum punya akun?
+        <a href="{{ route('register') }}" wire:navigate class="text-vest-600 font-bold">Daftar gratis</a>
+    </p>
 </div>

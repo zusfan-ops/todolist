@@ -29,7 +29,7 @@ class TaskController extends Controller
 
     public function today(Request $request)
     {
-        $tz = config('kerjaku.display_timezone');
+        $tz = $request->user()->displayTimezone();
         $today = now($tz)->toDateString();
 
         $baseQuery = fn () => Task::query()

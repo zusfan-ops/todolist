@@ -50,7 +50,7 @@
         <div class="flex items-center justify-between mt-1">
             <div>
                 <h1 class="font-disp font-extrabold text-xl tracking-tight">Kerja<span class="text-vest-500">Ku</span></h1>
-                <p class="text-ink-300 text-xs">{{ ucfirst(now(config('kerjaku.display_timezone'))->translatedFormat('l, j F')) }} &middot; WITA</p>
+                <p class="text-ink-300 text-xs">{{ ucfirst(now(auth()->user()->displayTimezone())->translatedFormat('l, j F')) }}</p>
             </div>
             <div class="flex items-center gap-2">
                 <button @click="openSyncPanel" class="flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-full"

@@ -15,9 +15,9 @@ class GenerateWeeklyReport extends Command
 
     public function handle(WeeklyReportService $reports): int
     {
-        $weekParam = now(config('kerjaku.display_timezone'))->subWeek()->format('o-\WW');
-
         foreach (User::all() as $user) {
+            $weekParam = now($user->displayTimezone())->subWeek()->format('o-\WW');
+
             $reports->generatePdf($user, $weekParam);
 
             if (! empty(config('webpush.vapid.public_key'))) {
@@ -25,7 +25,7 @@ class GenerateWeeklyReport extends Command
             }
         }
 
-        $this->info("Weekly report generated for {$weekParam}.");
+        $this->info('Weekly reports generated.');
 
         return self::SUCCESS;
     }
