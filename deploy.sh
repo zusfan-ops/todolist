@@ -6,9 +6,12 @@
 # =============================================================
 set -euo pipefail
 
-# Sesuaikan dengan path situs di aaPanel kamu
-APP_DIR="${APP_DIR:-/www/wwwroot/kerjaku}"
-PHP_BIN="${PHP_BIN:-php}"
+# Sesuaikan dengan path situs & binary PHP aaPanel kamu.
+# Jangan andalkan `php` polos dari PATH — di server ini `/usr/bin/php` adalah
+# PHP sistem Ubuntu yang salah nyantol ke .so milik build PHP aaPanel dan
+# crash (symbol lookup error). Binary aaPanel yang sehat ada di sini:
+APP_DIR="${APP_DIR:-/www/wwwroot/kerjaku.ordr.my.id/todolist}"
+PHP_BIN="${PHP_BIN:-/www/server/php/83/bin/php}"
 
 cd "$APP_DIR"
 
@@ -20,7 +23,7 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "==> Install dependensi composer (tanpa dev)"
-composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+"$PHP_BIN" "$(command -v composer)" install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 echo "==> Jalankan migrasi database"
 $PHP_BIN artisan migrate --force
