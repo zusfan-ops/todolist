@@ -10,8 +10,8 @@
         <p class="text-[10px] uppercase tracking-wider text-ink-300 mb-2">Minggu ini</p>
         <div class="flex items-end gap-1.5 h-20">
             @foreach ($weeklyMinutes as $i => $minutes)
-                <div class="flex-1 flex flex-col items-center gap-1">
-                    <div class="w-full rounded-t {{ $minutes === 0 ? 'bg-ink-700' : 'bg-vest-500' }}" style="height: {{ max(4, $minutes / $maxMinutes * 100) }}%"></div>
+                <div class="flex-1 flex flex-col items-center justify-end gap-1 h-full">
+                    <div class="w-full rounded-t {{ $minutes === 0 ? 'bg-ink-700' : 'bg-vest-500' }}" style="height: {{ max(4, round($minutes / $maxMinutes * 64)) }}px"></div>
                     <span class="text-[9px] text-ink-300 font-mono">{{ $dayLabels[$i] }}</span>
                 </div>
             @endforeach

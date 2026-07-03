@@ -96,7 +96,7 @@ class TaskController extends Controller
             ]
         );
 
-        return (new TaskResource($task->load(['kanbanColumn', 'checklistItems', 'workLogs'])))->response()->setStatusCode(201);
+        return (new TaskResource($task->fresh(['kanbanColumn', 'checklistItems', 'workLogs'])))->response()->setStatusCode(201);
     }
 
     public function update(Request $request, Task $task)
