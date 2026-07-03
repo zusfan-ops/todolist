@@ -24,9 +24,9 @@
         { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
     ],
     "shortcuts": [
-        { "name": "Hari Ini", "url": "/", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
-        { "name": "Kanban", "url": "/kanban", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
-        { "name": "Log", "url": "/log", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
-        { "name": "Foto", "url": "/photos", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] }
+        { "name": "Hari Ini", "url": "/app", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+        { "name": "Kanban", "url": "/app/kanban", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+        { "name": "Log", "url": "/app/log", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+        { "name": "Foto", "url": "/app/photos", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] }
     ]
 }

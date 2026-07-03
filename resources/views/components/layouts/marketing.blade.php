@@ -37,6 +37,10 @@
     {{ $slot }}
 </main>
 
+<div class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-40">
+    <x-pwa-install-banner />
+</div>
+
 <footer class="bg-ink-900 text-ink-300 mt-20">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p class="font-disp font-bold text-white">Kerja<span class="text-vest-500">Ku</span></p>

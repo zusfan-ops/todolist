@@ -70,6 +70,10 @@
 
     <livewire:timer-bar />
 
+    <div class="px-5 pt-3">
+        <x-pwa-install-banner />
+    </div>
+
     <main class="flex-1 overflow-y-auto no-scrollbar pb-24">
         {{ $slot }}
     </main>
