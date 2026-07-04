@@ -101,6 +101,11 @@
                         @endforeach
                     </div>
                 </div>
+
+                <button @click="if (confirm('Hapus task ini? Checklist, foto, dan log jam kerjanya tetap tersimpan tapi task tidak akan muncul lagi.')) $wire.deleteTask()"
+                        class="w-full text-xs font-disp font-bold text-brick-500 border border-brick-500/30 rounded-xl py-3 mt-2">
+                    Hapus Task
+                </button>
             </div>
         </div>
     @endif

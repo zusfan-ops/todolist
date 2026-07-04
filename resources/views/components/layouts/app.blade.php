@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#141B2E">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
     <title>{{ $title ?? 'KerjaKu' }}</title>
 
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -59,6 +60,7 @@
                     <span x-text="failed > 0 ? failed + ' gagal' : (!online ? 'Offline' : (queued > 0 ? queued + ' antre' : 'Tersinkron'))"></span>
                 </button>
                 <button @click="$dispatch('open-calculator')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">🧮</button>
+                <button @click="$dispatch('open-currency')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">💱</button>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
@@ -71,8 +73,9 @@
 
     <livewire:timer-bar />
 
-    <div class="px-5 pt-3">
+    <div class="px-5 pt-3 space-y-2">
         <x-pwa-install-banner />
+        <x-notification-banner />
     </div>
 
     <main class="flex-1 overflow-y-auto no-scrollbar pb-24">
@@ -102,6 +105,7 @@
     <livewire:task-detail-sheet />
     <livewire:quick-add />
     <x-calculator-modal />
+    <x-currency-modal />
 
     <div x-show="syncPanel" x-cloak @click.self="syncPanel = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-30">
         <div class="bg-white w-full rounded-t-3xl max-h-[70%] overflow-y-auto no-scrollbar p-5">

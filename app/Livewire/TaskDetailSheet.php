@@ -76,6 +76,18 @@ class TaskDetailSheet extends Component
         $this->dispatch('toast', message: 'Timer dimulai ⏱');
     }
 
+    public function deleteTask(): void
+    {
+        $task = $this->task();
+        $title = $task->title;
+        $task->delete();
+
+        $this->taskId = null;
+
+        $this->dispatch('task-updated');
+        $this->dispatch('toast', message: "Task \"{$title}\" dihapus");
+    }
+
     private function task(): Task
     {
         return Task::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ChecklistItemController;
+use App\Http\Controllers\Api\ExchangeRateController;
 use App\Http\Controllers\Api\KanbanColumnController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\PushSubscriptionController;
@@ -49,4 +50,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe']);
     Route::delete('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe']);
+
+    Route::get('/exchange-rate/usd-idr', [ExchangeRateController::class, 'usdIdr']);
 });
