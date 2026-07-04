@@ -98,14 +98,14 @@
         <x-notification-banner />
     </div>
 
-    <main class="flex-1 overflow-y-auto no-scrollbar pb-32">
+    <main class="flex-1 overflow-y-auto no-scrollbar pb-24">
         {{ $slot }}
     </main>
 
     <button @click="$dispatch('open-quick-add')"
-            class="fixed sm:absolute bottom-24 right-5 w-16 h-16 rounded-2xl bg-vest-500 text-ink-900 text-4xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform z-10">+</button>
+            class="fixed sm:absolute bottom-20 right-5 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-vest-500 text-ink-900 text-2xl sm:text-4xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform z-10">+</button>
 
-    <nav class="sticky sm:absolute bottom-4 left-4 right-4 bg-ink-900 dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/30 flex overflow-x-auto no-scrollbar px-2 py-1.5 gap-1 z-20">
+    <nav class="sticky sm:absolute inset-x-0 bottom-0 sm:inset-x-4 sm:bottom-4 bg-ink-900 dark:bg-ink-950 rounded-none sm:rounded-[2rem] shadow-xl shadow-ink-900/30 flex items-end px-1 sm:px-2 z-20 pb-[env(safe-area-inset-bottom,0px)]">
         @foreach ([
             ['today', 'Hari Ini', '☀️'],
             ['todo', 'To Do', '✅'],
@@ -117,13 +117,13 @@
             ['photos', 'Foto', '📷'],
         ] as [$routeName, $label, $icon])
             <a href="{{ route($routeName) }}" wire:navigate
-               class="relative flex flex-col items-center justify-center gap-0.5 py-2.5 px-3 rounded-2xl transition-all duration-200 shrink-0
+               class="relative flex flex-col items-center justify-center gap-0 sm:gap-0.5 py-1 sm:py-1.5 flex-1 min-w-0
                       {{ request()->routeIs($routeName) ? 'text-white' : 'text-ink-500' }}">
                 @if (request()->routeIs($routeName))
-                    <span class="absolute inset-0 bg-ink-700 dark:bg-white/10 rounded-2xl -z-0"></span>
+                    <span class="absolute inset-0 bg-ink-700 dark:bg-white/10 rounded-2xl mx-0.5 sm:mx-1.5"></span>
                 @endif
-                <span class="relative z-10 text-xl leading-none">{{ $icon }}</span>
-                <span class="relative z-10 text-[10px] font-disp font-bold whitespace-nowrap {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
+                <span class="relative z-10 text-base sm:text-xl leading-none">{{ $icon }}</span>
+                <span class="relative z-10 text-[7px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
             </a>
         @endforeach
     </nav>
@@ -158,7 +158,7 @@
     </div>
 
     <div x-show="toast" x-cloak x-transition
-         class="fixed sm:absolute bottom-28 left-1/2 -translate-x-1/2 bg-ink-900 dark:bg-ink-950 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
+         class="fixed sm:absolute bottom-24 left-1/2 -translate-x-1/2 bg-ink-900 dark:bg-ink-950 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
          x-text="toast"></div>
 </div>
 
