@@ -22,7 +22,7 @@ class ExchangeRateService
     {
         $cached = Cache::get(self::CACHE_KEY);
 
-        if ($cached && now()->lt($cached['expires_at'])) {
+        if ($cached && isset($cached['expires_at']) && now()->lt($cached['expires_at'])) {
             return $cached;
         }
 

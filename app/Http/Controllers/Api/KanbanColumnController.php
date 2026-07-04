@@ -8,6 +8,8 @@ use App\Models\KanbanColumn;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class KanbanColumnController extends Controller
 {
@@ -37,10 +39,16 @@ class KanbanColumnController extends Controller
         ]);
 
         $maxPosition = $project->kanbanColumns()->max('position') ?? 0;
+        $baseSlug = Str::slug($data['name']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while ($project->kanbanColumns()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
 
         $column = $project->kanbanColumns()->create([
             'name' => $data['name'],
-            'slug' => \Illuminate\Support\Str::slug($data['name']),
+            'slug' => $slug,
             'position' => $maxPosition + 1000,
             'wip_limit' => $data['wip_limit'] ?? null,
         ]);
@@ -74,10 +82,15 @@ class KanbanColumnController extends Controller
                 'migrate_to_column_id' => ['required', 'exists:kanban_columns,id'],
             ]);
 
-            Task::where('kanban_column_id', $column->id)->update(['kanban_column_id' => $data['migrate_to_column_id']]);
-        }
+            abort_if((int) $data['migrate_to_column_id'] === (int) $column->id, 422, 'Cannot migrate tasks to the same column being deleted.');
 
-        $column->delete();
+            DB::transaction(function () use ($column, $data) {
+                Task::where('kanban_column_id', $column->id)->update(['kanban_column_id' => $data['migrate_to_column_id']]);
+                $column->delete();
+            });
+        } else {
+            $column->delete();
+        }
 
         return response()->json(null, 204);
     }

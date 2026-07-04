@@ -73,7 +73,7 @@
                 <div wire:key="col-{{ $column->id }}"
                      data-col-id="{{ $column->id }}"
                      data-done-column="{{ $column->is_done_column ? '1' : '0' }}"
-                     x-init="Sortable.create($el, { group: 'kanban', animation: 180, delay: 120, delayOnTouchOnly: true, onEnd: (evt) => onDrop(evt, $el) })"
+                     x-init="if ($el._sortable) $el._sortable.destroy(); $el._sortable = Sortable.create($el, { group: 'kanban', animation: 180, delay: 120, delayOnTouchOnly: true, onEnd: (evt) => onDrop(evt, $el) })"
                      class="space-y-3 min-h-[120px] rounded-xl p-1">
                     @foreach ($column->tasks as $task)
                         <x-task-card :task="$task" />

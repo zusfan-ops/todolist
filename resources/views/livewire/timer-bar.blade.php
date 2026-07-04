@@ -10,7 +10,7 @@
                     return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60);
                 }
              }"
-             x-init="setInterval(() => tick++, 1000)"
+             x-init="() => { const id = setInterval(() => tick++, 1000); return () => clearInterval(id) }"
              class="bg-ink-700 text-white px-5 py-3 flex items-center justify-between shrink-0 border-b-2 border-vest-500">
             <div class="min-w-0">
                 <p class="text-xs uppercase tracking-wider text-vest-500 font-disp font-bold">Timer berjalan</p>

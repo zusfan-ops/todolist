@@ -14,9 +14,16 @@ async function compress(file) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    canvas.getContext('2d').drawImage(bitmap, 0, 0, width, height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to get canvas 2D context');
+    ctx.drawImage(bitmap, 0, 0, width, height);
 
-    return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('toBlob returned null'));
+        }, 'image/jpeg', JPEG_QUALITY);
+    });
 }
 
 function csrfToken() {
@@ -54,12 +61,14 @@ export async function capturePhoto(file, { taskId, type, caption = '' }) {
     });
 
     if (!response.ok) {
-        // Network is up but the request failed (validation, hash mismatch, etc.)
-        // — queue it so it isn't silently lost, and let the user retry from
-        // the sync panel like any other failed mutation.
-        await enqueue({ endpoint, method: 'POST', payload, blob: compressed, blobField: 'file' });
-        window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Gagal unggah, dicoba lagi otomatis' } }));
-        return { queued: true, failed: true };
+        if (response.status >= 500) {
+            await enqueue({ endpoint, method: 'POST', payload, blob: compressed, blobField: 'file' });
+            window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Gagal unggah, dicoba lagi otomatis' } }));
+        } else {
+            const text = await response.text().catch(() => 'Unknown error');
+            window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Gagal: ' + text.slice(0, 80) } }));
+        }
+        return { queued: response.status >= 500, failed: true };
     }
 
     window.dispatchEvent(new CustomEvent('task-updated'));

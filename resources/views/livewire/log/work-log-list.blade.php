@@ -26,7 +26,7 @@
         @forelse ($logs as $log)
             <div class="bg-white rounded-xl border border-ink-100 p-4 flex items-center justify-between">
                 <div class="min-w-0">
-                    <p class="text-base font-medium text-ink-900 truncate">{{ $log->task->title }}</p>
+                    <p class="text-base font-medium text-ink-900 truncate">{{ $log->task?->title ?? '(Task dihapus)' }}</p>
                     <p class="text-xs text-ink-500 mt-0.5">
                         {{ $log->started_at->copy()->setTimezone(auth()->user()->displayTimezone())->translatedFormat('j M, H:i') }}
                         @if ($log->note) &middot; {{ $log->note }} @endif

@@ -35,14 +35,15 @@
           async retryAll() { await window.KerjaKuOffline.retryFailed(); await this.refreshQueue(); this.syncPanel = false },
           async discard(id) { await window.KerjaKuOffline.discardFailed(id); this.failedItems = this.failedItems.filter(i => i.id !== id); await this.refreshQueue() }
       }"
-      x-init="
+      x-init="() => {
           refreshQueue();
           window.addEventListener('online', () => { online = true; refreshQueue() });
           window.addEventListener('offline', () => online = false);
           window.addEventListener('kerjaku:outbox-changed', () => refreshQueue());
           window.addEventListener('toast', e => showToast(e.detail.message));
-          setInterval(() => refreshQueue(), 15000);
-      ">
+          const id = setInterval(() => refreshQueue(), 15000);
+          return () => clearInterval(id);
+      }">
 
 <div class="w-full max-w-2xl mx-auto bg-white sm:my-6 sm:rounded-[2rem] shadow-2xl sm:overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
 

@@ -85,7 +85,7 @@
                 @if ($task->photos->count())
                     <div class="grid grid-cols-4 gap-2 mt-4">
                         @foreach ($task->photos as $ph)
-                            <img src="{{ $ph->thumb_url }}" class="aspect-square object-cover rounded-lg">
+                            <img src="{{ $ph->thumb_url }}" alt="{{ $ph->caption ?? 'Foto tugas' }}" class="aspect-square object-cover rounded-lg">
                         @endforeach
                     </div>
                 @endif

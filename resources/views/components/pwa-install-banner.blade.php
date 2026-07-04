@@ -26,5 +26,5 @@
         <p class="text-xs {{ $dark ? 'text-ink-300' : 'text-ink-500' }} leading-snug">Akses lebih cepat, bisa dipakai offline.</p>
     </div>
     <button @click="install" class="shrink-0 bg-vest-500 text-ink-900 text-sm font-disp font-bold px-4 py-2 rounded-lg">Instal</button>
-    <button @click="dismiss" class="shrink-0 {{ $dark ? 'text-ink-300' : 'text-ink-300' }} text-xl leading-none px-1">&times;</button>
+    <button @click="dismiss" class="shrink-0 text-ink-400 text-xl leading-none px-1">&times;</button>
 </div>

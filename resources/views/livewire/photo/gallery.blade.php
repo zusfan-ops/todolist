@@ -58,9 +58,9 @@
     <div class="grid grid-cols-3 gap-2">
         @foreach ($photos as $ph)
             <div class="aspect-square rounded-xl overflow-hidden relative bg-ink-100">
-                <img src="{{ $ph->thumb_url }}" class="w-full h-full object-cover">
-                <span class="absolute bottom-1 left-1 text-[10px] font-mono font-bold px-1.5 rounded text-white {{ $typeClass[$ph->type] }}">
-                    {{ $typeLabel[$ph->type] }}
+                <img src="{{ $ph->thumb_url }}" alt="{{ $ph->caption ?? 'Foto dokumentasi' }}" class="w-full h-full object-cover">
+                <span class="absolute bottom-1 left-1 text-[10px] font-mono font-bold px-1.5 rounded text-white {{ $typeClass[$ph->type] ?? 'bg-ink-700' }}">
+                    {{ $typeLabel[$ph->type] ?? 'Unknown' }}
                 </span>
             </div>
         @endforeach

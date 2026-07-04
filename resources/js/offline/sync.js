@@ -43,13 +43,13 @@ export async function processQueue() {
                 if (response.status >= 400 && response.status < 500) {
                     // Business conflict (409) or validation error (422) — needs a
                     // human decision, not a blind retry.
-                    await db.outbox.update(item.id, { status: OUTBOX_STATUS.FAILED, attempts: item.attempts + 1 });
+                    await db.outbox.update(item.id, { status: OUTBOX_STATUS.FAILED, attempts: (item.attempts ?? 0) + 1 });
                     continue;
                 }
 
                 throw new Error(`Server error ${response.status}`);
             } catch (err) {
-                const attempts = item.attempts + 1;
+                const attempts = (item.attempts ?? 0) + 1;
                 await db.outbox.update(item.id, {
                     attempts,
                     status: attempts >= MAX_ATTEMPTS ? OUTBOX_STATUS.FAILED : OUTBOX_STATUS.PENDING,

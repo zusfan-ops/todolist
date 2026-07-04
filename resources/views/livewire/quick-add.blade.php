@@ -1,7 +1,7 @@
 <div x-data="{
         open: false,
         title: '',
-        projectId: {{ $defaultProjectId ?? 'null' }},
+        projectId: @js($defaultProjectId),
         saving: false,
         init() {
             window.addEventListener('open-quick-add', () => this.open = true);

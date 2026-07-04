@@ -13,6 +13,10 @@ class WeeklyReportService
 {
     public function build(User $user, string $weekParam): array
     {
+        if (! preg_match('/^\d{4}-W\d{1,2}$/', $weekParam)) {
+            throw new \InvalidArgumentException("Invalid week format: $weekParam");
+        }
+
         [$year, $week] = sscanf($weekParam, '%d-W%d');
         $start = Carbon::now()->setISODate($year, $week)->startOfWeek();
         $end = $start->copy()->endOfWeek();

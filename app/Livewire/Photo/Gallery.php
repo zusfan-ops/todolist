@@ -32,6 +32,7 @@ class Gallery extends Component
             ->get();
 
         $tasks = Task::query()
+            ->with('project')
             ->whereIn('project_id', $projectIds)
             ->orderBy('title')
             ->get();

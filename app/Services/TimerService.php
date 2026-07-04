@@ -58,7 +58,7 @@ class TimerService
     public function stop(WorkLog $workLog): WorkLog
     {
         return DB::transaction(function () use ($workLog) {
-            $workLog = WorkLog::whereKey($workLog->id)->lockForUpdate()->first();
+            $workLog = WorkLog::whereKey($workLog->id)->lockForUpdate()->firstOrFail();
 
             if (! $workLog->isRunning()) {
                 return $workLog;

@@ -52,11 +52,11 @@
                 </p>
 
                 <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Dolar (USD)</label>
-                <input type="number" x-model="usd" @input="fromUsd" placeholder="0"
+                <input type="number" x-model.number="usd" @input="fromUsd" placeholder="0"
                        class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono mb-3 focus:outline-none focus:border-vest-500">
 
                 <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Rupiah (IDR)</label>
-                <input type="number" x-model="idr" @input="fromIdr" placeholder="0"
+                <input type="number" x-model.number="idr" @input="fromIdr" placeholder="0"
                        class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono focus:outline-none focus:border-vest-500">
 
                 <p class="text-xs text-ink-300 mt-3 text-center">

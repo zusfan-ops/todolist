@@ -94,7 +94,7 @@ class WorkLogList extends Component
         }
 
         $logs = WorkLog::query()
-            ->with('task')
+            ->with('task.project')
             ->where('user_id', auth()->id())
             ->whereNotNull('ended_at')
             ->orWhere(fn ($q) => $q->where('user_id', auth()->id())->where('source', 'manual'))
@@ -103,6 +103,7 @@ class WorkLogList extends Component
             ->get();
 
         $tasks = Task::query()
+            ->with('project')
             ->whereIn('project_id', auth()->user()->accessibleProjects()->pluck('id'))
             ->orderBy('title')
             ->get();
