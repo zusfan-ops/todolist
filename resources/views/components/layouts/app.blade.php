@@ -87,14 +87,14 @@
         <x-notification-banner />
     </div>
 
-    <main class="flex-1 overflow-y-auto no-scrollbar pb-28">
+    <main class="flex-1 overflow-y-auto no-scrollbar pb-32">
         {{ $slot }}
     </main>
 
     <button @click="$dispatch('open-quick-add')"
             class="fixed sm:absolute bottom-24 right-5 w-16 h-16 rounded-2xl bg-vest-500 text-ink-900 text-4xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform z-10">+</button>
 
-    <nav class="sticky sm:absolute bottom-0 left-0 right-0 bg-white border-t border-ink-100 grid grid-cols-5 px-2 pt-2 pb-4">
+    <nav class="sticky sm:absolute bottom-4 left-4 right-4 bg-ink-900 rounded-[2rem] shadow-xl shadow-ink-900/30 grid grid-cols-5 px-2 py-1.5 gap-1 z-20">
         @foreach ([
             ['today', 'Hari Ini', '☀️'],
             ['todo', 'To Do', '✅'],
@@ -103,10 +103,13 @@
             ['photos', 'Foto', '📷'],
         ] as [$routeName, $label, $icon])
             <a href="{{ route($routeName) }}" wire:navigate
-               class="flex flex-col items-center gap-1 py-2 rounded-xl {{ request()->routeIs($routeName) ? 'text-ink-900' : 'text-ink-300' }}">
-                <span class="text-2xl leading-none">{{ $icon }}</span>
-                <span class="text-xs font-disp font-bold">{{ $label }}</span>
-                <span class="w-5 h-1 rounded-full {{ request()->routeIs($routeName) ? 'bg-vest-500' : 'bg-transparent' }}"></span>
+               class="relative flex flex-col items-center justify-center gap-0.5 py-2.5 rounded-2xl transition-all duration-200
+                      {{ request()->routeIs($routeName) ? 'text-white' : 'text-ink-500' }}">
+                @if (request()->routeIs($routeName))
+                    <span class="absolute inset-0 bg-ink-700 rounded-2xl -z-0"></span>
+                @endif
+                <span class="relative z-10 text-xl leading-none">{{ $icon }}</span>
+                <span class="relative z-10 text-[10px] font-disp font-bold {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
             </a>
         @endforeach
     </nav>
