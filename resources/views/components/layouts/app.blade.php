@@ -159,28 +159,28 @@
         ];
         $activeRoute = request()->route()->getName();
     @endphp
-    <div class="sticky sm:absolute bottom-0 sm:bottom-4 inset-x-0 flex justify-center z-20 pb-[env(safe-area-inset-bottom,0px)] sm:px-1"
-         x-data="{
-             iw: 0,
-             il: 0,
-             initNav() {
-                 this.$nextTick(() => {
-                     const ar = this.$el.dataset.activeRoute;
-                     const el = this.$el.querySelector('[data-r=\'' + ar + '\']');
-                     if (!el) return;
+    <div class="sticky sm:absolute bottom-0 sm:bottom-4 inset-x-0 flex justify-center z-20 pb-[env(safe-area-inset-bottom,0px)] sm:px-1">
+        <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-1"
+             style="height:64px"
+             x-data="{
+                 iw: 0,
+                 il: 0,
+                 initNav() {
+                     this.$nextTick(() => {
+                         const ar = this.$el.dataset.activeRoute;
+                         const el = this.$el.querySelector('[data-r=\'' + ar + '\']');
+                         if (!el) return;
+                         const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
+                         this.iw = r.width; this.il = r.left - p.left;
+                     });
+                 },
+                 mv(el) {
                      const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
                      this.iw = r.width; this.il = r.left - p.left;
-                 });
-             },
-             mv(el) {
-                 const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
-                 this.iw = r.width; this.il = r.left - p.left;
-             }
-         }"
-         data-active-route="{{ $activeRoute }}"
-         x-init="initNav()">
-         <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-1"
-             style="height:64px">
+                 }
+             }"
+             data-active-route="{{ $activeRoute }}"
+             x-init="initNav()">
             <span class="absolute bottom-1 h-[50px] rounded-[1.3rem] bg-ink-100 dark:bg-ink-700/60 pointer-events-none z-0 transition-all duration-500"
                   :style="{ width: iw + 'px', left: il + 'px' }"
                   style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)"></span>
