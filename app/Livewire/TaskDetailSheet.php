@@ -68,6 +68,10 @@ class TaskDetailSheet extends Component
             return;
         }
 
+        // Close the sheet so the persistent timer bar (top of the layout) is
+        // reachable — it's covered by this sheet's own backdrop while open.
+        $this->taskId = null;
+
         $this->dispatch('timer-changed');
         $this->dispatch('toast', message: 'Timer dimulai ⏱');
     }

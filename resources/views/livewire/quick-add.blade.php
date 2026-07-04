@@ -17,8 +17,8 @@
             this.saving = false;
 
             // Queued (offline) counts as success from the user's point of view —
-            // it'll sync later. A real HTTP failure (4xx/401/etc.) must NOT show
-            // a false "saved" toast.
+            // it'll sync later. A real HTTP failure (4xx/401/etc.) must not show
+            // a false success toast.
             if (!result.queued && result.response && !result.response.ok) {
                 window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Gagal menyimpan task, coba lagi' } }));
                 return;
