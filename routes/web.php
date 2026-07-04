@@ -6,6 +6,7 @@ use App\Livewire\Kanban\Board;
 use App\Livewire\Log\WorkLogList;
 use App\Livewire\Photo\Gallery;
 use App\Livewire\Today\Dashboard;
+use App\Livewire\Todo\Index as TodoIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::post('/logout', function () {
 
 Route::middleware('auth')->prefix('app')->group(function () {
     Route::get('/', Dashboard::class)->name('today');
+    Route::get('/todo', TodoIndex::class)->name('todo');
     Route::get('/kanban', Board::class)->name('kanban');
     Route::get('/log', WorkLogList::class)->name('log');
     Route::get('/photos', Gallery::class)->name('photos');

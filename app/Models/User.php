@@ -59,6 +59,11 @@ class User extends Authenticatable
         return $this->hasMany(WorkLog::class);
     }
 
+    public function simpleTodos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SimpleTodo::class);
+    }
+
     public function displayTimezone(): string
     {
         return $this->timezone ?: config('kerjaku.display_timezone');

@@ -58,6 +58,7 @@
                     <span class="w-1.5 h-1.5 rounded-full" :class="failed > 0 ? 'bg-brick-500' : (!online || queued > 0 ? 'bg-vest-500 animate-pulse' : 'bg-leaf-500')"></span>
                     <span x-text="failed > 0 ? failed + ' gagal' : (!online ? 'Offline' : (queued > 0 ? queued + ' antre' : 'Tersinkron'))"></span>
                 </button>
+                <button @click="$dispatch('open-calculator')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">🧮</button>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
@@ -81,9 +82,10 @@
     <button @click="$dispatch('open-quick-add')"
             class="absolute bottom-20 right-5 w-14 h-14 rounded-2xl bg-vest-500 text-ink-900 text-3xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform">+</button>
 
-    <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-ink-100 grid grid-cols-4 px-2 pt-1 pb-3">
+    <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-ink-100 grid grid-cols-5 px-1 pt-1 pb-3">
         @foreach ([
             ['today', 'Hari Ini', '☀️'],
+            ['todo', 'To Do', '✅'],
             ['kanban', 'Kanban', '▦'],
             ['log', 'Log', '⏱'],
             ['photos', 'Foto', '📷'],
@@ -91,7 +93,7 @@
             <a href="{{ route($routeName) }}" wire:navigate
                class="flex flex-col items-center gap-0.5 py-1.5 rounded-xl {{ request()->routeIs($routeName) ? 'text-ink-900' : 'text-ink-300' }}">
                 <span class="text-lg leading-none">{{ $icon }}</span>
-                <span class="text-[10px] font-disp font-bold">{{ $label }}</span>
+                <span class="text-[9px] font-disp font-bold">{{ $label }}</span>
                 <span class="w-4 h-0.5 rounded-full {{ request()->routeIs($routeName) ? 'bg-vest-500' : 'bg-transparent' }}"></span>
             </a>
         @endforeach
@@ -99,6 +101,7 @@
 
     <livewire:task-detail-sheet />
     <livewire:quick-add />
+    <x-calculator-modal />
 
     <div x-show="syncPanel" x-cloak @click.self="syncPanel = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-30">
         <div class="bg-white w-full rounded-t-3xl max-h-[70%] overflow-y-auto no-scrollbar p-5">
