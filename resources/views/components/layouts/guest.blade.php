@@ -8,7 +8,7 @@
     <title>{{ $title ?? 'KerjaKu' }}</title>
 
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <link rel="icon" href="{{ asset('logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('icons/icon-96.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

@@ -9,8 +9,8 @@
     <title>{{ $title ?? 'KerjaKu' }}</title>
 
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <link rel="icon" href="{{ asset('logo.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('icons/icon-96.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -179,30 +179,30 @@
          }"
          data-active-route="{{ $activeRoute }}"
          x-init="initNav()">
-        <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-0 sm:gap-0.5 px-2 sm:px-5 py-1"
-             style="height:60px">
-            <span class="absolute bottom-1 h-[46px] rounded-[1.3rem] bg-ink-100 dark:bg-ink-700/60 pointer-events-none z-0 transition-all duration-500"
+         <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-1"
+             style="height:64px">
+            <span class="absolute bottom-1 h-[50px] rounded-[1.3rem] bg-ink-100 dark:bg-ink-700/60 pointer-events-none z-0 transition-all duration-500"
                   :style="{ width: iw + 'px', left: il + 'px' }"
                   style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)"></span>
 
             @foreach ($navTabs as $tab)
                 @if ($tab === null)
                     <button @click="$dispatch('open-quick-add')"
-                            class="grid place-items-center rounded-2xl -mt-4 shrink-0 mx-0.5 z-10"
-                            style="width:46px;height:46px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
-                        <svg class="w-6 h-6" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            class="grid place-items-center rounded-2xl -mt-4 shrink-0 z-10"
+                            style="width:52px;height:52px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
+                        <svg class="w-7 h-7" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </button>
                 @elseif ($tab[0] === 'more')
                     <button @click="moreSheet = true"
-                            class="relative flex flex-col items-center justify-center gap-0.5 px-2.5 sm:px-4 py-1 rounded-xl z-10 transition-colors"
+                            class="relative flex flex-col items-center justify-center gap-1 px-3 sm:px-4 py-1.5 rounded-xl z-10 transition-colors"
                             :class="moreSheet ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'"
                             @click="mv($el)">
-                        <svg class="w-6 h-6 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                        <svg class="w-7 h-7 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
                              :style="moreSheet ? 'transform:scale(1.15)' : ''"
                              style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">
                             <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
                         </svg>
-                        <span class="text-[10px] sm:text-[9px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
+                        <span class="text-[11px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
                               :class="moreSheet ? 'opacity-100' : 'opacity-70'"
                               style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">{{ $tab[1] }}</span>
                     </button>
@@ -210,14 +210,14 @@
                     <a href="{{ route($tab[0]) }}" wire:navigate
                        data-r="{{ $tab[0] }}"
                        @click="mv($el)"
-                       class="relative flex flex-col items-center justify-center gap-0.5 px-2.5 sm:px-4 py-1 rounded-xl z-10 transition-colors duration-200"
+                       class="relative flex flex-col items-center justify-center gap-1 px-3 sm:px-4 py-1.5 rounded-xl z-10 transition-colors duration-200"
                        :class="'{{ $activeRoute === $tab[0] }}' === '1' ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'">
-                        <svg class="w-6 h-6 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                        <svg class="w-7 h-7 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
                              :style="'{{ $activeRoute === $tab[0] }}' === '1' ? 'transform:scale(1.18)' : ''"
                              style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">
                             <path d="{{ $tab[2] }}"/>
                         </svg>
-                        <span class="text-[10px] sm:text-[9px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
+                        <span class="text-[11px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
                               :class="'{{ $activeRoute === $tab[0] }}' === '1' ? 'opacity-100' : 'opacity-70'"
                               style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">{{ $tab[1] }}</span>
                     </a>
