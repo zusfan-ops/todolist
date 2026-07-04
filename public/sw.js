@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'kerjaku-v2';
+const CACHE_VERSION = 'kerjaku-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -39,7 +39,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Built assets are content-hashed — safe to cache aggressively (cache-first).
-    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/livewire/')) {
+    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/')) {
         event.respondWith(cacheFirst(request, STATIC_CACHE));
         return;
     }

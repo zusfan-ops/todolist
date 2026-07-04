@@ -165,7 +165,8 @@
              il: 0,
              initNav() {
                  this.$nextTick(() => {
-                     const el = this.$el.querySelector('[data-r=\"{{ $activeRoute }}\"]');
+                     const ar = this.$el.dataset.activeRoute;
+                     const el = this.$el.querySelector('[data-r=\'' + ar + '\']');
                      if (!el) return;
                      const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
                      this.iw = r.width; this.il = r.left - p.left;
@@ -176,6 +177,7 @@
                  this.iw = r.width; this.il = r.left - p.left;
              }
          }"
+         data-active-route="{{ $activeRoute }}"
          x-init="initNav()">
         <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-0 sm:gap-0.5 px-2 sm:px-5 py-1"
              style="height:60px">
