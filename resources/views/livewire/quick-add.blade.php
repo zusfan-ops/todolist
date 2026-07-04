@@ -31,15 +31,15 @@
         }
      }">
     <div x-show="open" x-cloak @click.self="open = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
-        <div class="bg-white w-full rounded-t-3xl p-5">
-            <h3 class="font-disp font-bold text-ink-900 mb-3">Task baru</h3>
+        <div class="bg-white w-full rounded-t-3xl p-6">
+            <h3 class="font-disp font-bold text-lg text-ink-900 mb-4">Task baru</h3>
             <input x-model="title" @keydown.enter="create" placeholder="Apa yang mau dikerjakan?" autofocus
-                   class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vest-500">
+                   class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:border-vest-500">
 
-            <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+            <div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar">
                 @foreach ($projects as $project)
                     <button @click="projectId = {{ $project->id }}"
-                            class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border"
+                            class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border"
                             :class="projectId === {{ $project->id }} ? 'text-white border-transparent' : 'bg-white text-ink-700 border-ink-100'"
                             :style="projectId === {{ $project->id }} && 'background: {{ $project->color }}'">
                         {{ $project->name }}
@@ -47,7 +47,7 @@
                 @endforeach
             </div>
 
-            <button @click="create" :disabled="saving" class="w-full bg-ink-900 text-white font-disp font-bold py-3.5 rounded-xl mt-4 disabled:opacity-50">
+            <button @click="create" :disabled="saving" class="w-full bg-ink-900 text-white font-disp font-bold py-4 rounded-xl mt-5 text-base disabled:opacity-50">
                 <span x-text="saving ? 'Menyimpan…' : 'Simpan ke Backlog'"></span>
             </button>
         </div>

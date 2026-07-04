@@ -11,14 +11,14 @@
                 }
              }"
              x-init="setInterval(() => tick++, 1000)"
-             class="bg-ink-700 text-white px-5 py-2.5 flex items-center justify-between shrink-0 border-b-2 border-vest-500">
+             class="bg-ink-700 text-white px-5 py-3 flex items-center justify-between shrink-0 border-b-2 border-vest-500">
             <div class="min-w-0">
-                <p class="text-[10px] uppercase tracking-wider text-vest-500 font-disp font-bold">Timer berjalan</p>
-                <p class="text-sm truncate">{{ $activeTimer->task->title }}</p>
+                <p class="text-xs uppercase tracking-wider text-vest-500 font-disp font-bold">Timer berjalan</p>
+                <p class="text-base truncate">{{ $activeTimer->task->title }}</p>
             </div>
             <div class="flex items-center gap-3 shrink-0">
-                <span class="font-mono font-bold text-lg tabular-nums" x-text="display"></span>
-                <button wire:click="stop" class="bg-brick-500 hover:bg-brick-500/90 text-white text-xs font-disp font-bold px-3 py-1.5 rounded-lg">STOP</button>
+                <span class="font-mono font-bold text-xl tabular-nums" x-text="display"></span>
+                <button wire:click="stop" class="bg-brick-500 hover:bg-brick-500/90 text-white text-sm font-disp font-bold px-4 py-2 rounded-lg">STOP</button>
             </div>
         </div>
     @endif

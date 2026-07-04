@@ -1,7 +1,7 @@
 <div class="bg-white rounded-3xl p-6 shadow-2xl">
     <div class="text-center mb-6">
         <h1 class="font-disp font-extrabold text-2xl text-ink-900 tracking-tight">Kerja<span class="text-vest-500">Ku</span></h1>
-        <p class="text-ink-500 text-xs mt-1">Personal Work Tracker</p>
+        <p class="text-ink-500 text-sm mt-1">Personal Work Tracker</p>
     </div>
 
     <form wire:submit="login" class="space-y-3">

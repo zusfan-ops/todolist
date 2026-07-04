@@ -40,10 +40,10 @@
         <h3 class="font-disp font-bold text-ink-900 mb-1">Kurs USD → IDR</h3>
 
         <template x-if="loading && !rate">
-            <p class="text-xs text-ink-500">Memuat kurs…</p>
+            <p class="text-sm text-ink-500">Memuat kurs…</p>
         </template>
         <template x-if="error && !rate">
-            <p class="text-xs text-brick-500">Kurs sedang tidak tersedia. Coba lagi nanti.</p>
+            <p class="text-sm text-brick-500">Kurs sedang tidak tersedia. Coba lagi nanti.</p>
         </template>
         <template x-if="rate">
             <div>
@@ -51,15 +51,15 @@
                     1 USD = <span class="font-mono font-bold text-ink-900" x-text="'Rp ' + Math.round(rate).toLocaleString('id-ID')"></span>
                 </p>
 
-                <label class="text-[10px] font-disp font-bold uppercase tracking-wider text-ink-500">Dolar (USD)</label>
+                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Dolar (USD)</label>
                 <input type="number" x-model="usd" @input="fromUsd" placeholder="0"
-                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3 text-lg font-mono mb-3 focus:outline-none focus:border-vest-500">
+                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono mb-3 focus:outline-none focus:border-vest-500">
 
-                <label class="text-[10px] font-disp font-bold uppercase tracking-wider text-ink-500">Rupiah (IDR)</label>
+                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Rupiah (IDR)</label>
                 <input type="number" x-model="idr" @input="fromIdr" placeholder="0"
-                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3 text-lg font-mono focus:outline-none focus:border-vest-500">
+                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono focus:outline-none focus:border-vest-500">
 
-                <p class="text-[10px] text-ink-300 mt-3 text-center">
+                <p class="text-xs text-ink-300 mt-3 text-center">
                     Diperbarui <span x-text="new Date(updatedAt).toLocaleString('id-ID')"></span> &middot; sumber exchangerate-api.com
                 </p>
             </div>
