@@ -10,14 +10,22 @@
             if (!this.title.trim() || !this.projectId) return;
             this.saving = true;
 
-            await window.KerjaKuApi.sendJson('/api/tasks', 'POST', {
+            const result = await window.KerjaKuApi.sendJson('/api/tasks', 'POST', {
                 project_id: this.projectId,
                 title: this.title.trim(),
             });
+            this.saving = false;
+
+            // Queued (offline) counts as success from the user's point of view —
+            // it'll sync later. A real HTTP failure (4xx/401/etc.) must NOT show
+            // a false "saved" toast.
+            if (!result.queued && result.response && !result.response.ok) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Gagal menyimpan task, coba lagi' } }));
+                return;
+            }
 
             this.title = '';
             this.open = false;
-            this.saving = false;
             window.dispatchEvent(new CustomEvent('task-updated'));
             window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Task masuk Backlog' } }));
         }
