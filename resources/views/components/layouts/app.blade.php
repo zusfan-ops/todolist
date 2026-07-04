@@ -54,10 +54,10 @@
           return () => clearInterval(id);
       }">
 
-<div class="w-full max-w-2xl mx-auto bg-white dark:bg-ink-900 sm:my-6 sm:rounded-[2rem] shadow-2xl sm:overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
+<div class="w-full max-w-2xl mx-auto bg-white dark:bg-ink-900 sm:my-6 sm:rounded-[2rem] shadow-2xl relative flex flex-col min-h-[100dvh] sm:min-h-0">
 
     {{-- SLIM HEADER --}}
-    <header class="bg-ink-900 text-white px-5 pt-5 pb-4 shrink-0 relative overflow-hidden">
+    <header class="bg-ink-900 text-white px-5 pt-5 pb-4 shrink-0 relative sm:rounded-t-[2rem]">
         <div class="hazard absolute top-0 left-0 right-0 h-1.5"></div>
         <div class="flex items-center justify-between mt-1">
             <div>
@@ -79,7 +79,7 @@
                         {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
                     </button>
                     <div x-show="menuOpen" x-cloak x-transition @click.outside="menuOpen = false"
-                         class="absolute right-0 top-11 w-56 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-40 text-ink-900 dark:text-white text-sm">
+                         class="absolute right-0 top-11 w-56 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-50 text-ink-900 dark:text-white text-sm">
                         {{-- Dark mode --}}
                         <button @click="dark = !dark; menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
                             <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base" x-text="dark ? '☀️' : '🌙'"></span>
