@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
@@ -27,6 +29,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
+        'share_token',
         'timezone',
         'owner_id',
     ];
@@ -72,6 +76,32 @@ class User extends Authenticatable
     public function displayTimezone(): string
     {
         return $this->timezone ?: config('kerjaku.display_timezone');
+    }
+
+    // ── Profile & share ────────────────────────────────────────────
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::disk('public')->url($this->avatar);
+        }
+
+        return '';
+    }
+
+    public function generateShareToken(): string
+    {
+        $this->share_token = Str::random(16);
+        $this->save();
+
+        return $this->share_token;
+    }
+
+    public function getShareLinkAttribute(): string
+    {
+        return $this->share_token
+            ? route('shared.todos', $this->share_token)
+            : '';
     }
 
     // ── Staff / multi-user ────────────────────────────────────────────

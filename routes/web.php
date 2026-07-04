@@ -7,6 +7,7 @@ use App\Livewire\Calendar\Index as CalendarIndex;
 use App\Livewire\Kanban\Board;
 use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Log\WorkLogList;
+use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\Photo\Gallery;
 use App\Livewire\Staff\AcceptInvite;
 use App\Livewire\Staff\Index as StaffIndex;
@@ -20,6 +21,8 @@ Route::get('/', function () {
         ? redirect()->route('today')
         : view('pages.welcome');
 })->name('welcome');
+
+Route::get('/share/{token}', [App\Http\Controllers\SharedTodoController::class, 'show'])->name('shared.todos');
 
 Route::get('/privacy', function () {
     return view('pages.privacy');
@@ -48,5 +51,6 @@ Route::middleware('auth')->prefix('app')->group(function () {
     Route::get('/analytics', AnalyticsIndex::class)->name('analytics');
     Route::get('/photos', Gallery::class)->name('photos');
     Route::get('/notes', NoteIndex::class)->name('notes');
+    Route::get('/settings', SettingsIndex::class)->name('settings');
     Route::get('/staff', StaffIndex::class)->name('staff');
 });

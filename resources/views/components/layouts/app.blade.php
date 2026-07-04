@@ -75,8 +75,12 @@
 
                 {{-- Avatar dropdown --}}
                 <div class="relative" x-data="{ menuOpen: false }">
-                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center text-sm">
-                        {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
+                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center text-sm overflow-hidden">
+                        @if (auth()->user()->avatar_url)
+                            <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-full h-full object-cover">
+                        @else
+                            {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
+                        @endif
                     </button>
                     <div x-show="menuOpen" x-cloak x-transition @click.outside="menuOpen = false"
                          class="absolute right-0 top-11 w-56 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-50 text-ink-900 dark:text-white text-sm">
@@ -107,6 +111,11 @@
                             <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">💱</span>
                             <span class="font-medium">Kurs USD/IDR</span>
                         </button>
+                        {{-- Settings --}}
+                        <a href="{{ route('settings') }}" wire:navigate @click="menuOpen = false" class="flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">⚙️</span>
+                            <span class="font-medium">Pengaturan</span>
+                        </a>
                         {{-- Staff management --}}
                         @if (auth()->user()->isOwner())
                             <a href="{{ route('staff') }}" wire:navigate @click="menuOpen = false" class="flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
@@ -202,13 +211,14 @@
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full">
             <div class="w-9 h-1 rounded-full mx-auto mb-4 bg-ink-200 dark:bg-ink-500"></div>
-            <div class="grid grid-cols-4 gap-3">
+            <div class="grid grid-cols-5 gap-2">
                 @php
                     $sheetItems = [
                         ['calendar', 'Kalender', 'M4 5h16v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5ZM4 10h16M9 3v4M15 3v4'],
                         ['notes', 'Catatan', 'M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM14 3v5h5M8 13h8M8 17h5'],
                         ['photos', 'Foto', 'M4 8h3l2-2h6l2 2h3v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8ZM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
                         ['kanban', 'Kanban', 'M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5ZM14 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5ZM14 13a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-5ZM4 14a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4Z'],
+                        ['settings', 'Pengaturan', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.64 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.64 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.64c.36-.13.68-.36.93-.65'],
                     ];
                 @endphp
                 @foreach ($sheetItems as [$route, $label, $path])
