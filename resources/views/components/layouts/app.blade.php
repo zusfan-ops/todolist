@@ -148,51 +148,81 @@
         {{ $slot }}
     </main>
 
-    {{-- BOTTOM NAV — 5 TAB --}}
-    <nav class="sticky sm:absolute inset-x-0 bottom-0 sm:inset-x-4 sm:bottom-4 bg-white dark:bg-ink-950 border-t border-ink-100 dark:border-ink-800 sm:rounded-[2rem] sm:border sm:shadow-xl sm:shadow-ink-900/30 flex items-center px-2 sm:px-3 z-20 pb-[env(safe-area-inset-bottom,0px)]"
-         style="height:66px">
-        @php
-            $navTabs = [
-                ['today', 'Hari Ini', 'M3.5 12a8.5 8.5 0 1 1 17 0 8.5 8.5 0 0 1-17 0ZM12 8v4l2.5 2.5'],
-                ['todo', 'Tugas', 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4'],
-                null, // + button (inline)
-                ['log', 'Log', 'M12 6v6l4 2M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z'],
-                ['more', 'Lainnya', 'M5 12h.01M12 12h.01M19 12h.01'],
-            ];
-        @endphp
+    {{-- BOTTOM NAV — 5 TAB, DOCK STYLE + SPRING ANIMATION --}}
+    @php
+        $navTabs = [
+            ['today', 'Hari Ini', 'M3.5 12a8.5 8.5 0 1 1 17 0 8.5 8.5 0 0 1-17 0ZM12 8v4l2.5 2.5'],
+            ['todo', 'Tugas', 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4'],
+            null,
+            ['log', 'Log', 'M12 6v6l4 2M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z'],
+            ['more', 'Lainnya', 'M5 12h.01M12 12h.01M19 12h.01'],
+        ];
+        $activeRoute = request()->route()->getName();
+    @endphp
+    <div class="sticky sm:absolute bottom-0 sm:bottom-4 inset-x-0 flex justify-center z-20 pb-[env(safe-area-inset-bottom,0px)] px-3"
+         x-data="{
+             iw: 0,
+             il: 0,
+             initNav() {
+                 this.$nextTick(() => {
+                     const el = this.$el.querySelector('[data-r=\"{{ $activeRoute }}\"]');
+                     if (!el) return;
+                     const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
+                     this.iw = r.width; this.il = r.left - p.left;
+                 });
+             },
+             mv(el) {
+                 const r = el.getBoundingClientRect(), p = this.$el.getBoundingClientRect();
+                 this.iw = r.width; this.il = r.left - p.left;
+             }
+         }"
+         x-init="initNav()">
+        <div class="relative bg-white dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/20 border border-ink-100 dark:border-ink-700 flex items-center gap-0.5 px-2 sm:px-2.5 py-1.5"
+             style="height:62px">
+            <span class="absolute bottom-1 h-[46px] rounded-[1.3rem] bg-ink-100 dark:bg-ink-700/60 pointer-events-none z-0 transition-all duration-500"
+                  :style="{ width: iw + 'px', left: il + 'px' }"
+                  style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)"></span>
 
-        @foreach ($navTabs as $i => $tab)
-            @if ($tab === null)
-                {{-- FAB integrated in nav --}}
-                <button @click="$dispatch('open-quick-add')"
-                        class="grid place-items-center rounded-2xl -mt-5 shrink-0 shadow-lg mx-1"
-                        style="width:50px;height:50px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
-                    <svg class="w-6 h-6" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-            @elseif ($tab[0] === 'more')
-                {{-- "Lainnya" button — opens sheet instead of route --}}
-                <button @click="moreSheet = true"
-                        class="relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl transition-colors"
-                        :class="moreSheet ? 'text-amber-500' : 'text-ink-400'">
-                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
-                    </svg>
-                    <span class="text-[9px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap">{{ $tab[1] }}</span>
-                </button>
-            @else
-                <a href="{{ route($tab[0]) }}" wire:navigate
-                   class="relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl transition-all duration-200"
-                   :class="'{{ request()->routeIs($tab[0]) }}' === '1' ? 'text-amber-500' : 'text-ink-400'"
-                   x-data="{ active: '{{ request()->routeIs($tab[0]) }}' === '1' }"
-                   :style="active ? 'background:rgba(245,163,0,.12)' : ''">
-                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="{{ $tab[2] }}"/>
-                    </svg>
-                    <span class="text-[9px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap">{{ $tab[1] }}</span>
-                </a>
-            @endif
-        @endforeach
-    </nav>
+            @foreach ($navTabs as $tab)
+                @if ($tab === null)
+                    <button @click="$dispatch('open-quick-add')"
+                            class="grid place-items-center rounded-2xl -mt-4 shrink-0 mx-0.5 z-10"
+                            style="width:46px;height:46px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
+                        <svg class="w-6 h-6" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                @elseif ($tab[0] === 'more')
+                    <button @click="moreSheet = true"
+                            class="relative flex flex-col items-center justify-center gap-0.5 px-2.5 sm:px-3 py-1 rounded-xl z-10 transition-colors"
+                            :class="moreSheet ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'"
+                            @click="mv($el)">
+                        <svg class="w-[22px] h-[22px] sm:w-6 sm:h-6 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                             :style="moreSheet ? 'transform:scale(1.15)' : ''"
+                             style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">
+                            <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                        </svg>
+                        <span class="text-[9px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
+                              :class="moreSheet ? 'opacity-100' : 'opacity-70'"
+                              style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">{{ $tab[1] }}</span>
+                    </button>
+                @else
+                    <a href="{{ route($tab[0]) }}" wire:navigate
+                       data-r="{{ $tab[0] }}"
+                       @click="mv($el)"
+                       class="relative flex flex-col items-center justify-center gap-0.5 px-2.5 sm:px-3 py-1 rounded-xl z-10 transition-colors duration-200"
+                       :class="'{{ $activeRoute === $tab[0] }}' === '1' ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'">
+                        <svg class="w-[22px] h-[22px] sm:w-6 sm:h-6 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                             :style="'{{ $activeRoute === $tab[0] }}' === '1' ? 'transform:scale(1.18)' : ''"
+                             style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">
+                            <path d="{{ $tab[2] }}"/>
+                        </svg>
+                        <span class="text-[9px] leading-tight font-disp font-bold whitespace-nowrap transition-all duration-500"
+                              :class="'{{ $activeRoute === $tab[0] }}' === '1' ? 'opacity-100' : 'opacity-70'"
+                              style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">{{ $tab[1] }}</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    </div>
 
     {{-- "LAINNYA" BOTTOM SHEET --}}
     <div x-show="moreSheet" x-cloak @click.self="moreSheet = false"
