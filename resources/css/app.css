@@ -10,6 +10,22 @@ body {
     overscroll-behavior: none;
 }
 
+.dark body {
+    background: #0F1422;
+}
+
+.dark .prog-track {
+    background: #2A3550;
+}
+
+.dark .hazard {
+    background-image: repeating-linear-gradient(45deg, #F5A300 0 8px, #0F1422 8px 16px);
+}
+
+.dark .sortable-chosen {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .4) !important;
+}
+
 .hazard {
     background-image: repeating-linear-gradient(45deg, #F5A300 0 8px, #141B2E 8px 16px);
 }

@@ -31,16 +31,16 @@
         }
      }">
     <div x-show="open" x-cloak @click.self="open = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
-        <div class="bg-white w-full rounded-t-3xl p-6">
-            <h3 class="font-disp font-bold text-lg text-ink-900 mb-4">Task baru</h3>
+        <div class="bg-white dark:bg-ink-700 w-full rounded-t-3xl p-6">
+            <h3 class="font-disp font-bold text-lg text-ink-900 dark:text-white mb-4">Task baru</h3>
             <input x-model="title" @keydown.enter="create" placeholder="Apa yang mau dikerjakan?" autofocus
-                   class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:border-vest-500">
+                   class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-100 dark:border-ink-500 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:border-vest-500">
 
             <div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar">
                 @foreach ($projects as $project)
                     <button @click="projectId = {{ $project->id }}"
                             class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border"
-                            :class="projectId === {{ $project->id }} ? 'text-white border-transparent' : 'bg-white text-ink-700 border-ink-100'"
+                            :class="projectId === {{ $project->id }} ? 'text-white border-transparent' : 'bg-white dark:bg-ink-700 text-ink-700 dark:text-ink-100 border-ink-100 dark:border-ink-500'"
                             :style="projectId === {{ $project->id }} && 'background: {{ $project->color }}'">
                         {{ $project->name }}
                     </button>

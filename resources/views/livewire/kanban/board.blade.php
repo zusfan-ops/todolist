@@ -36,13 +36,13 @@
     <div class="px-5 flex gap-2 mb-4 overflow-x-auto no-scrollbar">
         @foreach ($projects as $project)
             <button wire:click="selectProject({{ $project->id }})"
-                    class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border {{ $activeProjectId === $project->id ? 'bg-ink-900 text-white border-ink-900' : 'bg-white text-ink-700 border-ink-100' }}">
+                    class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border {{ $activeProjectId === $project->id ? 'bg-ink-900 text-white border-ink-900' : 'bg-white dark:bg-ink-700 text-ink-700 dark:text-ink-100 border-ink-100 dark:border-ink-500' }}">
                 {{ $project->name }}
             </button>
         @endforeach
         @if (auth()->user()->isOwner())
             <button wire:click="openNewProjectModal"
-                    class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border-2 border-dashed border-ink-300 text-ink-500 shrink-0">
+                    class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border-2 border-dashed border-ink-300 dark:border-ink-500 text-ink-500 dark:text-ink-300 shrink-0">
                 + Proyek
             </button>
         @endif
@@ -50,7 +50,7 @@
 
     @if ($projects->isEmpty())
         <div class="px-5">
-            <p class="text-sm text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-6 text-center">
+            <p class="text-sm text-ink-500 dark:text-ink-300 bg-white dark:bg-ink-700 border border-dashed border-ink-300 dark:border-ink-500 rounded-xl p-6 text-center">
                 @if (auth()->user()->isOwner())
                     Belum ada proyek. Buat proyek pertamamu dengan tombol "+ Proyek" di atas.
                 @else
@@ -65,8 +65,8 @@
             @php $overWip = $column->wip_limit && $column->tasks->count() > $column->wip_limit; @endphp
             <div class="w-[80%] shrink-0" wire:key="col-wrap-{{ $column->id }}">
                 <div class="flex items-center justify-between mb-3 px-1">
-                    <h3 class="font-disp font-bold text-sm uppercase tracking-wider {{ $column->is_done_column ? 'text-leaf-500' : 'text-ink-700' }}">{{ $column->name }}</h3>
-                    <span class="font-mono text-xs px-2 py-0.5 rounded {{ $overWip ? 'bg-vest-100 text-vest-600 font-bold' : 'bg-ink-100 text-ink-500' }}">
+                    <h3 class="font-disp font-bold text-sm uppercase tracking-wider {{ $column->is_done_column ? 'text-leaf-500' : 'text-ink-700 dark:text-ink-100' }}">{{ $column->name }}</h3>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded {{ $overWip ? 'bg-vest-100 dark:bg-vest-500/20 text-vest-600 font-bold' : 'bg-ink-100 dark:bg-ink-600 text-ink-500 dark:text-ink-300' }}">
                         {{ $column->tasks->count() }}{{ $column->wip_limit ? '/'.$column->wip_limit : '' }}
                     </span>
                 </div>
@@ -82,14 +82,14 @@
             </div>
         @endforeach
     </div>
-    <p class="text-center text-xs text-ink-500 mt-2">Geser kartu antar kolom &middot; geser layar untuk kolom lain</p>
+    <p class="text-center text-xs text-ink-500 dark:text-ink-300 mt-2">Geser kartu antar kolom &middot; geser layar untuk kolom lain</p>
 
     @if ($showNewProjectModal)
         <div wire:click.self="$set('showNewProjectModal', false)" class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
-            <div class="bg-white w-full rounded-t-3xl p-6">
-                <h3 class="font-disp font-bold text-lg text-ink-900 mb-4">Proyek baru</h3>
+            <div class="bg-white dark:bg-ink-700 w-full rounded-t-3xl p-6">
+                <h3 class="font-disp font-bold text-lg text-ink-900 dark:text-white mb-4">Proyek baru</h3>
                 <input wire:model="newProjectName" wire:keydown.enter="createProject" placeholder="Nama proyek (mis. Cak Goto Cabang 2)" autofocus
-                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:border-vest-500">
+                       class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-100 dark:border-ink-500 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:border-vest-500">
                 @error('newProjectName') <p class="text-brick-500 text-sm mt-1">{{ $message }}</p> @enderror
 
                 <div class="flex gap-3 mt-4">

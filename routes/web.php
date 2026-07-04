@@ -2,6 +2,8 @@
 
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
+use App\Livewire\Analytics\Index as AnalyticsIndex;
+use App\Livewire\Calendar\Index as CalendarIndex;
 use App\Livewire\Kanban\Board;
 use App\Livewire\Log\WorkLogList;
 use App\Livewire\Photo\Gallery;
@@ -39,8 +41,10 @@ Route::post('/logout', function () {
 Route::middleware('auth')->prefix('app')->group(function () {
     Route::get('/', Dashboard::class)->name('today');
     Route::get('/todo', TodoIndex::class)->name('todo');
+    Route::get('/calendar', CalendarIndex::class)->name('calendar');
     Route::get('/kanban', Board::class)->name('kanban');
     Route::get('/log', WorkLogList::class)->name('log');
+    Route::get('/analytics', AnalyticsIndex::class)->name('analytics');
     Route::get('/photos', Gallery::class)->name('photos');
     Route::get('/staff', StaffIndex::class)->name('staff');
 });

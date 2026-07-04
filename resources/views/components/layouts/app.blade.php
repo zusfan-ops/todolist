@@ -15,8 +15,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-ink-50 min-h-screen"
+<body class="bg-ink-50 dark:bg-[#0F1422] min-h-screen"
       x-data="{
+          dark: localStorage.getItem('kerjaku_dark') === 'true',
           online: navigator.onLine,
           queued: 0,
           failed: 0,
@@ -24,6 +25,13 @@
           failedItems: [],
           toast: '',
           showToast(msg) { this.toast = msg; setTimeout(() => this.toast = '', 2200) },
+          init() {
+              this.$watch('dark', val => {
+                  document.documentElement.classList.toggle('dark', val);
+                  localStorage.setItem('kerjaku_dark', val);
+              });
+              if (this.dark) document.documentElement.classList.add('dark');
+          },
           async refreshQueue() {
               this.queued = await window.KerjaKuOffline?.pendingCount() ?? 0;
               this.failed = await window.KerjaKuOffline?.failedCount() ?? 0;
@@ -45,7 +53,7 @@
           return () => clearInterval(id);
       }">
 
-<div class="w-full max-w-2xl mx-auto bg-white sm:my-6 sm:rounded-[2rem] shadow-2xl sm:overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
+<div class="w-full max-w-2xl mx-auto bg-white dark:bg-ink-900 sm:my-6 sm:rounded-[2rem] shadow-2xl sm:overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
 
     <header class="bg-ink-900 text-white px-5 pt-5 pb-4 shrink-0 relative overflow-hidden">
         <div class="hazard absolute top-0 left-0 right-0 h-1.5"></div>
@@ -54,22 +62,24 @@
                 <h1 class="font-disp font-extrabold text-2xl tracking-tight">Kerja<span class="text-vest-500">Ku</span></h1>
                 <p class="text-ink-300 text-sm mt-0.5">{{ ucfirst(now(auth()->user()->displayTimezone())->translatedFormat('l, j F')) }}</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button @click="openSyncPanel" class="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-full"
+            <div class="flex items-center gap-2">
+                <button @click="dark = !dark" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base leading-none"
+                        x-text="dark ? '☀️' : '🌙'"></button>
+                <button @click="openSyncPanel" class="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-full"
                       :class="failed > 0 ? 'bg-brick-500/20 text-brick-100' : (!online || queued > 0 ? 'bg-vest-500/20 text-vest-100' : 'bg-leaf-500/20 text-leaf-100')">
                     <span class="w-2 h-2 rounded-full" :class="failed > 0 ? 'bg-brick-500' : (!online || queued > 0 ? 'bg-vest-500 animate-pulse' : 'bg-leaf-500')"></span>
                     <span x-text="failed > 0 ? failed + ' gagal' : (!online ? 'Offline' : (queued > 0 ? queued + ' antre' : 'Tersinkron'))"></span>
                 </button>
-                <button @click="$dispatch('open-calculator')" class="w-10 h-10 rounded-full bg-white/10 text-white grid place-items-center text-lg">🧮</button>
-                <button @click="$dispatch('open-currency')" class="w-10 h-10 rounded-full bg-white/10 text-white grid place-items-center text-lg">💱</button>
+                <button @click="$dispatch('open-calculator')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">🧮</button>
+                <button @click="$dispatch('open-currency')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">💱</button>
                 <div class="relative" x-data="{ menuOpen: false }">
-                    <button @click="menuOpen = !menuOpen" class="w-10 h-10 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
+                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
                         {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
                     </button>
                     <div x-show="menuOpen" x-cloak x-transition @click.outside="menuOpen = false"
-                         class="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-40 text-ink-900">
+                         class="absolute right-0 top-11 w-48 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-40 text-ink-900 dark:text-white">
                         @if (auth()->user()->isOwner())
-                            <a href="{{ route('staff') }}" wire:navigate class="block px-4 py-3.5 text-sm font-disp font-bold border-b border-ink-100">👥 Kelola Staf</a>
+                            <a href="{{ route('staff') }}" wire:navigate class="block px-4 py-3.5 text-sm font-disp font-bold border-b border-ink-100 dark:border-ink-500">👥 Kelola Staf</a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -95,22 +105,24 @@
     <button @click="$dispatch('open-quick-add')"
             class="fixed sm:absolute bottom-24 right-5 w-16 h-16 rounded-2xl bg-vest-500 text-ink-900 text-4xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform z-10">+</button>
 
-    <nav class="sticky sm:absolute bottom-4 left-4 right-4 bg-ink-900 rounded-[2rem] shadow-xl shadow-ink-900/30 grid grid-cols-5 px-2 py-1.5 gap-1 z-20">
+    <nav class="sticky sm:absolute bottom-4 left-4 right-4 bg-ink-900 dark:bg-ink-950 rounded-[2rem] shadow-xl shadow-ink-900/30 flex overflow-x-auto no-scrollbar px-2 py-1.5 gap-1 z-20">
         @foreach ([
             ['today', 'Hari Ini', '☀️'],
             ['todo', 'To Do', '✅'],
+            ['calendar', 'Kalender', '📅'],
             ['kanban', 'Kanban', '▦'],
             ['log', 'Log', '⏱'],
+            ['analytics', 'Analitik', '📊'],
             ['photos', 'Foto', '📷'],
         ] as [$routeName, $label, $icon])
             <a href="{{ route($routeName) }}" wire:navigate
-               class="relative flex flex-col items-center justify-center gap-0.5 py-2.5 rounded-2xl transition-all duration-200
+               class="relative flex flex-col items-center justify-center gap-0.5 py-2.5 px-3 rounded-2xl transition-all duration-200 shrink-0
                       {{ request()->routeIs($routeName) ? 'text-white' : 'text-ink-500' }}">
                 @if (request()->routeIs($routeName))
-                    <span class="absolute inset-0 bg-ink-700 rounded-2xl -z-0"></span>
+                    <span class="absolute inset-0 bg-ink-700 dark:bg-white/10 rounded-2xl -z-0"></span>
                 @endif
                 <span class="relative z-10 text-xl leading-none">{{ $icon }}</span>
-                <span class="relative z-10 text-[10px] font-disp font-bold {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
+                <span class="relative z-10 text-[10px] font-disp font-bold whitespace-nowrap {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
             </a>
         @endforeach
     </nav>
@@ -121,31 +133,31 @@
     <x-currency-modal />
 
     <div x-show="syncPanel" x-cloak @click.self="syncPanel = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-30">
-        <div class="bg-white w-full rounded-t-3xl max-h-[70%] overflow-y-auto no-scrollbar p-5">
+        <div class="bg-white dark:bg-ink-700 w-full rounded-t-3xl max-h-[70%] overflow-y-auto no-scrollbar p-5">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="font-disp font-bold text-ink-900">Antrean sinkron</h3>
-                <button @click="syncPanel = false" class="text-ink-300 text-xl leading-none">&times;</button>
+                <h3 class="font-disp font-bold text-ink-900 dark:text-white">Antrean sinkron</h3>
+                <button @click="syncPanel = false" class="text-ink-300 dark:text-ink-100 text-xl leading-none">&times;</button>
             </div>
             <template x-if="!failedItems.length">
-                <p class="text-sm text-ink-500 text-center py-6">Tidak ada item yang gagal.</p>
+                <p class="text-sm text-ink-500 dark:text-ink-300 text-center py-6">Tidak ada item yang gagal.</p>
             </template>
             <div class="space-y-2.5">
                 <template x-for="item in failedItems" :key="item.id">
-                    <div class="bg-brick-100 rounded-xl p-4 flex items-center justify-between gap-3">
+                    <div class="bg-brick-100 dark:bg-brick-500/20 rounded-xl p-4 flex items-center justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-ink-900 truncate" x-text="item.method + ' ' + item.endpoint"></p>
-                            <p class="text-xs text-ink-500" x-text="item.attempts + ' percobaan'"></p>
+                            <p class="text-sm font-bold text-ink-900 dark:text-white truncate" x-text="item.method + ' ' + item.endpoint"></p>
+                            <p class="text-xs text-ink-500 dark:text-ink-300" x-text="item.attempts + ' percobaan'"></p>
                         </div>
                         <button @click="discard(item.id)" class="shrink-0 text-xs font-disp font-bold text-brick-500 border border-brick-500 rounded-lg px-3 py-1.5">Buang</button>
                     </div>
                 </template>
             </div>
-            <button x-show="failedItems.length" @click="retryAll" class="w-full bg-ink-900 text-white font-disp font-bold py-3.5 rounded-xl mt-4">Coba lagi semua</button>
+            <button x-show="failedItems.length" @click="retryAll" class="w-full bg-ink-900 dark:bg-ink-950 text-white font-disp font-bold py-3.5 rounded-xl mt-4">Coba lagi semua</button>
         </div>
     </div>
 
     <div x-show="toast" x-cloak x-transition
-         class="fixed sm:absolute bottom-28 left-1/2 -translate-x-1/2 bg-ink-900 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
+         class="fixed sm:absolute bottom-28 left-1/2 -translate-x-1/2 bg-ink-900 dark:bg-ink-950 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
          x-text="toast"></div>
 </div>
 

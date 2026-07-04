@@ -29,15 +29,15 @@
             }
          }"
          x-show="show" x-cloak x-transition
-         class="bg-white border border-ink-100 rounded-xl px-4 py-3 flex items-center gap-3 shadow-lg">
+         class="bg-white dark:bg-ink-700 border border-ink-100 dark:border-ink-500 rounded-xl px-4 py-3 flex items-center gap-3 shadow-lg">
         <span class="text-2xl leading-none shrink-0">🔔</span>
         <div class="min-w-0 flex-1">
-            <p class="text-sm font-disp font-bold leading-snug text-ink-900">Aktifkan pengingat</p>
-            <p class="text-xs text-ink-500 leading-snug">Dapat notifikasi saat task jatuh tempo atau timer lupa di-stop.</p>
+            <p class="text-sm font-disp font-bold leading-snug text-ink-900 dark:text-white">Aktifkan pengingat</p>
+            <p class="text-xs text-ink-500 dark:text-ink-300 leading-snug">Dapat notifikasi saat task jatuh tempo atau timer lupa di-stop.</p>
         </div>
-        <button @click="enable" :disabled="enabling" class="shrink-0 bg-vest-500 text-ink-900 text-sm font-disp font-bold px-4 py-2 rounded-lg disabled:opacity-50">
+        <button @click="enable" :disabled="enabling" class="shrink-0 bg-vest-500 text-ink-900 dark:text-white text-sm font-disp font-bold px-4 py-2 rounded-lg disabled:opacity-50">
             <span x-text="enabling ? '…' : 'Aktifkan'"></span>
         </button>
-        <button @click="dismiss" class="shrink-0 text-ink-300 text-xl leading-none px-1">&times;</button>
+        <button @click="dismiss" class="shrink-0 text-ink-300 dark:text-ink-400 text-xl leading-none px-1">&times;</button>
     </div>
 @endif

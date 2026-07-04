@@ -1,37 +1,37 @@
 <div class="px-5 pt-6 space-y-6" wire:poll.60s>
     <div class="grid grid-cols-3 gap-3">
-        <div class="bg-white rounded-xl p-4 border border-ink-100">
-            <p class="font-mono font-bold text-2xl text-ink-900">{{ intdiv($minutesToday, 60) }}j {{ $minutesToday % 60 }}m</p>
-            <p class="text-xs text-ink-500 uppercase tracking-wide">Jam kerja</p>
+        <div class="bg-white dark:bg-ink-700 rounded-xl p-4 border border-ink-100 dark:border-ink-500">
+            <p class="font-mono font-bold text-2xl text-ink-900 dark:text-white">{{ intdiv($minutesToday, 60) }}j {{ $minutesToday % 60 }}m</p>
+            <p class="text-xs text-ink-500 dark:text-ink-300 uppercase tracking-wide">Jam kerja</p>
         </div>
-        <div class="bg-white rounded-xl p-4 border border-ink-100">
+        <div class="bg-white dark:bg-ink-700 rounded-xl p-4 border border-ink-100 dark:border-ink-500">
             <p class="font-mono font-bold text-2xl text-leaf-500">{{ $completedToday }}</p>
-            <p class="text-xs text-ink-500 uppercase tracking-wide">Selesai</p>
+            <p class="text-xs text-ink-500 dark:text-ink-300 uppercase tracking-wide">Selesai</p>
         </div>
-        <div class="bg-white rounded-xl p-4 border border-ink-100">
+        <div class="bg-white dark:bg-ink-700 rounded-xl p-4 border border-ink-100 dark:border-ink-500">
             <p class="font-mono font-bold text-2xl text-brick-500">{{ $dueToday->count() }}</p>
-            <p class="text-xs text-ink-500 uppercase tracking-wide">Due hari ini</p>
+            <p class="text-xs text-ink-500 dark:text-ink-300 uppercase tracking-wide">Due hari ini</p>
         </div>
     </div>
 
     <div>
-        <h2 class="font-disp font-bold text-ink-900 text-base uppercase tracking-wider mb-3">Jatuh tempo hari ini</h2>
+        <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider mb-3">Jatuh tempo hari ini</h2>
         <div class="space-y-3">
             @forelse ($dueToday as $task)
                 <x-task-card :task="$task" wire:key="due-{{ $task->id }}" />
             @empty
-                <p class="text-sm text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-5 text-center">Tidak ada tenggat hari ini. Tambahkan task dengan tombol +</p>
+                <p class="text-sm text-ink-500 dark:text-ink-300 bg-white dark:bg-ink-700 border border-dashed border-ink-300 dark:border-ink-500 rounded-xl p-5 text-center">Tidak ada tenggat hari ini. Tambahkan task dengan tombol +</p>
             @endforelse
         </div>
     </div>
 
     <div>
-        <h2 class="font-disp font-bold text-ink-900 text-base uppercase tracking-wider mb-3">Sedang dikerjakan</h2>
+        <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider mb-3">Sedang dikerjakan</h2>
         <div class="space-y-3">
             @forelse ($inProgress as $task)
                 <x-task-card :task="$task" wire:key="doing-{{ $task->id }}" />
             @empty
-                <p class="text-sm text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-5 text-center">Belum ada task yang sedang dikerjakan.</p>
+                <p class="text-sm text-ink-500 dark:text-ink-300 bg-white dark:bg-ink-700 border border-dashed border-ink-300 dark:border-ink-500 rounded-xl p-5 text-center">Belum ada task yang sedang dikerjakan.</p>
             @endforelse
         </div>
     </div>

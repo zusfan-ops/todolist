@@ -35,31 +35,31 @@
      }"
      x-show="open" x-cloak @click.self="open = false"
      class="absolute inset-0 bg-ink-900/50 flex items-end z-30">
-    <div class="bg-white w-full rounded-t-3xl p-5">
-        <div class="w-10 h-1 bg-ink-100 rounded-full mx-auto mb-4"></div>
-        <h3 class="font-disp font-bold text-ink-900 mb-1">Kurs USD → IDR</h3>
+    <div class="bg-white dark:bg-ink-700 w-full rounded-t-3xl p-5">
+        <div class="w-10 h-1 bg-ink-100 dark:bg-ink-600 rounded-full mx-auto mb-4"></div>
+        <h3 class="font-disp font-bold text-ink-900 dark:text-white mb-1">Kurs USD → IDR</h3>
 
         <template x-if="loading && !rate">
-            <p class="text-sm text-ink-500">Memuat kurs…</p>
+            <p class="text-sm text-ink-500 dark:text-ink-300">Memuat kurs…</p>
         </template>
         <template x-if="error && !rate">
             <p class="text-sm text-brick-500">Kurs sedang tidak tersedia. Coba lagi nanti.</p>
         </template>
         <template x-if="rate">
             <div>
-                <p class="text-sm text-ink-700 mb-4">
-                    1 USD = <span class="font-mono font-bold text-ink-900" x-text="'Rp ' + Math.round(rate).toLocaleString('id-ID')"></span>
+                <p class="text-sm text-ink-700 dark:text-ink-100 mb-4">
+                    1 USD = <span class="font-mono font-bold text-ink-900 dark:text-white" x-text="'Rp ' + Math.round(rate).toLocaleString('id-ID')"></span>
                 </p>
 
-                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Dolar (USD)</label>
+                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500 dark:text-ink-300">Dolar (USD)</label>
                 <input type="number" x-model.number="usd" @input="fromUsd" placeholder="0"
-                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono mb-3 focus:outline-none focus:border-vest-500">
+                       class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-100 dark:border-ink-500 rounded-xl px-4 py-3.5 text-lg font-mono mb-3 focus:outline-none focus:border-vest-500">
 
-                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500">Rupiah (IDR)</label>
+                <label class="text-xs font-disp font-bold uppercase tracking-wider text-ink-500 dark:text-ink-300">Rupiah (IDR)</label>
                 <input type="number" x-model.number="idr" @input="fromIdr" placeholder="0"
-                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3.5 text-lg font-mono focus:outline-none focus:border-vest-500">
+                       class="w-full bg-ink-50 dark:bg-ink-800 border border-ink-100 dark:border-ink-500 rounded-xl px-4 py-3.5 text-lg font-mono focus:outline-none focus:border-vest-500">
 
-                <p class="text-xs text-ink-300 mt-3 text-center">
+                <p class="text-xs text-ink-300 dark:text-ink-400 mt-3 text-center">
                     Diperbarui <span x-text="new Date(updatedAt).toLocaleString('id-ID')"></span> &middot; sumber exchangerate-api.com
                 </p>
             </div>
