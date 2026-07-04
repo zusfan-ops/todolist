@@ -13,6 +13,7 @@ use App\Livewire\Staff\AcceptInvite;
 use App\Livewire\Staff\Index as StaffIndex;
 use App\Livewire\Today\Dashboard;
 use App\Livewire\Todo\Index as TodoIndex;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,15 @@ Route::post('/logout', function () {
 })->middleware('auth')->name('logout');
 
 Route::middleware('auth')->prefix('app')->group(function () {
+    Route::get('/guide', function () {
+        return view('pages.guide');
+    })->name('guide');
+
+    Route::post('/onboarding/done', function (Request $request) {
+        $request->user()->update(['seen_onboarding' => true]);
+        return response()->json(['ok' => true]);
+    })->name('onboarding.done');
+
     Route::get('/', Dashboard::class)->name('today');
     Route::get('/todo', TodoIndex::class)->name('todo');
     Route::get('/calendar', CalendarIndex::class)->name('calendar');

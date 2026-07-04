@@ -31,6 +31,7 @@ class User extends Authenticatable
         'password',
         'avatar',
         'share_token',
+        'seen_onboarding',
         'timezone',
         'owner_id',
     ];
@@ -55,6 +56,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'seen_onboarding' => 'boolean',
         ];
     }
 

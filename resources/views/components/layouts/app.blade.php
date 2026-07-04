@@ -101,6 +101,11 @@
                                 <span class="block text-[11px] text-ink-500 dark:text-ink-300" x-show="queued > 0" x-text="queued + ' antrean'"></span>
                             </span>
                         </button>
+                        {{-- Guide --}}
+                        <a href="{{ route('guide') }}" wire:navigate @click="menuOpen = false" class="flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">📘</span>
+                            <span class="font-medium">Panduan</span>
+                        </a>
                         {{-- Calculator --}}
                         <button @click="$dispatch('open-calculator'); menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
                             <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">🧮</span>
@@ -187,7 +192,7 @@
 
             @foreach ($navTabs as $tab)
                 @if ($tab === null)
-                    <button @click="$dispatch('open-quick-add')"
+                    <button @click="$dispatch('open-quick-add')" data-onboard-target="fab"
                             class="grid place-items-center rounded-2xl -mt-4 shrink-0 z-10"
                             style="width:52px;height:52px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
                         <svg class="w-7 h-7" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -196,7 +201,8 @@
                     <button @click="moreSheet = true"
                             class="relative flex flex-col items-center justify-center gap-1 px-3 sm:px-4 py-1.5 rounded-xl z-10 transition-colors"
                             :class="moreSheet ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'"
-                            @click="mv($el)">
+                            @click="mv($el)"
+                            data-onboard-target="more">
                         <svg class="w-7 h-7 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
                              :style="moreSheet ? 'transform:scale(1.15)' : ''"
                              style="transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)">
@@ -209,6 +215,7 @@
                 @else
                     <a href="{{ route($tab[0]) }}" wire:navigate
                        data-r="{{ $tab[0] }}"
+                       data-onboard-target="{{ $tab[0] }}"
                        @click="mv($el)"
                        class="relative flex flex-col items-center justify-center gap-1 px-3 sm:px-4 py-1.5 rounded-xl z-10 transition-colors duration-200"
                        :class="'{{ $activeRoute === $tab[0] }}' === '1' ? 'text-amber-500' : 'text-ink-400 hover:text-ink-600 dark:hover:text-ink-200'">
@@ -263,6 +270,11 @@
                     </a>
                 @endforeach
             </div>
+            <a href="{{ route('guide') }}" wire:navigate @click="moreSheet = false"
+               class="flex items-center justify-center gap-2 mt-3 py-3 rounded-xl bg-ink-50 dark:bg-ink-600 hover:bg-ink-100 dark:hover:bg-ink-500 transition-colors">
+                <span class="text-sm">📘</span>
+                <span class="text-sm font-bold text-ink-700 dark:text-ink-200">Panduan Penggunaan</span>
+            </a>
         </div>
     </div>
 
@@ -300,6 +312,87 @@
     <div x-show="toast" x-cloak x-transition
          class="fixed sm:absolute bottom-24 left-1/2 -translate-x-1/2 bg-ink-900 dark:bg-ink-950 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
          x-text="toast"></div>
+
+    {{-- ONBOARDING — first-time user tour --}}
+    @if (!auth()->user()->seen_onboarding)
+    <div x-data="{
+        step: 0,
+        steps: [
+            { emoji: '👋', title: 'Selamat Datang di KerjaKu', desc: 'Aplikasi untuk catat semua pekerjaanmu — task, kanban, timer, foto dokumentasi, dan laporan. Semua dalam satu tempat, gratis.', target: null },
+            { emoji: '📋', title: 'Cek Tugas Hari Ini', desc: 'Tab pertama menampilkan tugas jatuh tempo, tugas sedang dikerjakan, jam kerja, dan progres harian.', target: 'today' },
+            { emoji: '✅', title: 'Buat & Atur Tugas', desc: 'Buat catatan cepat atau kelola proyek dan tugas lewat daftar atau papan Kanban.', target: 'todo' },
+            { emoji: '➕', title: 'Tambah Cepat', desc: 'Tombol + di tengah untuk membuat tugas baru langsung ke proyek tertentu.', target: 'fab' },
+            { emoji: '⏱', title: 'Catat Jam Kerja', desc: 'Mulai timer di tiap tugas atau catat manual. Lihat log dan statistik mingguan.', target: 'log' },
+            { emoji: '📦', title: 'Jelajahi Fitur Lain', desc: 'Akses kalender, catatan, foto, Kanban, pengaturan, dan panduan dari menu Lainnya.', target: 'more' },
+            { emoji: '🎉', title: 'Siap!', desc: 'Kamu sudah siap menggunakan KerjaKu. Mulai kerjakan proyek pertamamu sekarang.', target: null },
+        ],
+        async finish() {
+            await fetch('{{ route('onboarding.done') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
+            this.step = -1;
+        },
+        next() {
+            if (this.step < this.steps.length - 1) this.step++;
+            else this.finish();
+        },
+        prev() { if (this.step > 0) this.step--; },
+        skip() { this.finish(); },
+    }"
+    x-init="step = 0"
+    x-show="step >= 0"
+    x-cloak
+    class="fixed inset-0 z-[60] flex flex-col"
+    :class="steps[step].target ? 'pointer-events-auto' : ''">
+        <div class="absolute inset-0 bg-ink-900/65" @click="skip()"></div>
+
+        {{-- Highlight ring on target nav element --}}
+        <template x-if="steps[step].target">
+            <div class="absolute inset-0 pointer-events-none"
+                 x-html="'<style id=\\\'onboard-style\\\'>[data-onboard-target=\\\'' + steps[step].target + '\\\']{position:relative;z-index:61;filter:brightness(1.3)}[data-onboard-target=\\\'' + steps[step].target + '\\\']::after{content:\\'\\';position:absolute;inset:-5px;border-radius:inherit;border:3px solid #F5A300;animation:onboard-pulse 1.2s ease-in-out infinite}@keyframes onboard-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.05)}}</style>'">
+            </div>
+        </template>
+
+        <div class="mt-auto px-5 pb-6 relative z-10">
+            <div class="bg-white dark:bg-ink-700 rounded-2xl p-6 shadow-2xl max-w-sm mx-auto">
+                <template x-for="(s, i) in steps" :key="i">
+                    <div x-show="step === i">
+                        <div class="w-14 h-14 rounded-full bg-vest-50 dark:bg-vest-500/10 flex items-center justify-center mb-4">
+                            <span class="text-3xl" x-text="s.emoji"></span>
+                        </div>
+                        <h3 class="font-disp font-bold text-lg text-ink-900 dark:text-white" x-text="s.title"></h3>
+                        <p class="text-sm text-ink-500 dark:text-ink-300 mt-2 leading-relaxed" x-text="s.desc"></p>
+
+                        {{-- Arrow pointing down when target is a nav item --}}
+                        <div x-show="s.target" class="flex justify-center mt-4 text-ink-400 dark:text-ink-300">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                        </div>
+
+                        {{-- Step dots --}}
+                        <div class="flex items-center justify-center gap-1.5 mt-5">
+                            <template x-for="(_, j) in steps" :key="j">
+                                <span class="w-1.5 h-1.5 rounded-full transition-colors duration-200"
+                                      :class="j === step ? 'bg-ink-900 dark:bg-white' : 'bg-ink-200 dark:bg-ink-500'"></span>
+                            </template>
+                        </div>
+
+                        {{-- Navigation --}}
+                        <div class="flex items-center justify-between mt-5">
+                            <button x-show="step > 0" @click="prev()" class="text-sm text-ink-400 dark:text-ink-300 font-disp font-bold">Kembali</button>
+                            <span x-show="step === 0"></span>
+                            <div class="flex items-center gap-3 ml-auto">
+                                <button @click="skip()" class="text-xs text-ink-400 dark:text-ink-300 font-disp font-medium">Lewati</button>
+                                <button @click="next()"
+                                        class="px-6 py-2.5 rounded-xl font-disp font-bold text-sm"
+                                        :class="step === steps.length - 1 ? 'bg-vest-500 text-ink-900' : 'bg-ink-900 dark:bg-ink-950 text-white dark:text-white'">
+                                    <span x-text="step === steps.length - 1 ? 'Mulai' : 'Lanjut'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @livewireScripts
