@@ -5,6 +5,7 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Analytics\Index as AnalyticsIndex;
 use App\Livewire\Calendar\Index as CalendarIndex;
 use App\Livewire\Kanban\Board;
+use App\Livewire\Note\Index as NoteIndex;
 use App\Livewire\Log\WorkLogList;
 use App\Livewire\Photo\Gallery;
 use App\Livewire\Staff\AcceptInvite;
@@ -46,5 +47,6 @@ Route::middleware('auth')->prefix('app')->group(function () {
     Route::get('/log', WorkLogList::class)->name('log');
     Route::get('/analytics', AnalyticsIndex::class)->name('analytics');
     Route::get('/photos', Gallery::class)->name('photos');
+    Route::get('/notes', NoteIndex::class)->name('notes');
     Route::get('/staff', StaffIndex::class)->name('staff');
 });

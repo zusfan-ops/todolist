@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Calendar;
 
+use App\Models\Note;
 use App\Models\Task;
 use App\Models\WorkLog;
 use Livewire\Attributes\Layout;
@@ -59,6 +60,13 @@ class Index extends Component
             ->get()
             ->groupBy(fn ($t) => $t->due_date->toDateString());
 
+        $notes = Note::with('attachments')
+            ->where('user_id', auth()->id())
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->orderBy('date')
+            ->get()
+            ->groupBy(fn ($n) => $n->date->toDateString());
+
         $startDay = (int) $startOfMonth->format('N');
         $daysInMonth = (int) $startOfMonth->format('t');
 
@@ -73,6 +81,7 @@ class Index extends Component
                     'day' => $day,
                     'date' => $date,
                     'tasks' => $tasks->get($date, collect()),
+                    'notes' => $notes->get($date, collect()),
                     'isToday' => $date === now()->toDateString(),
                 ];
                 $day++;
@@ -82,10 +91,12 @@ class Index extends Component
             $col = 0;
         }
 
-        if (! $this->selectedDate || ! isset($tasks[$this->selectedDate])) {
-            $selectedDateTasks = collect();
+        if ($this->selectedDate) {
+            $selectedDateTasks = $tasks->get($this->selectedDate, collect());
+            $selectedDateNotes = $notes->get($this->selectedDate, collect());
         } else {
-            $selectedDateTasks = $tasks[$this->selectedDate];
+            $selectedDateTasks = collect();
+            $selectedDateNotes = collect();
         }
 
         $activeTimerTaskIds = WorkLog::query()->where('user_id', auth()->id())->active()->pluck('task_id');
@@ -98,6 +109,7 @@ class Index extends Component
         return view('livewire.calendar.index', [
             'weeks' => $weeks,
             'selectedDateTasks' => $selectedDateTasks,
+            'selectedDateNotes' => $selectedDateNotes,
             'monthName' => $monthName,
         ]);
     }

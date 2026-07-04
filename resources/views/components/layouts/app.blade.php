@@ -110,6 +110,7 @@
             ['today', 'Hari Ini', '☀️'],
             ['todo', 'To Do', '✅'],
             ['calendar', 'Kalender', '📅'],
+            ['notes', 'Catatan', '📝'],
             ['kanban', 'Kanban', '▦'],
             ['log', 'Log', '⏱'],
             ['analytics', 'Analitik', '📊'],
