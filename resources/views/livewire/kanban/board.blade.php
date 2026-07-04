@@ -42,10 +42,21 @@
 
     <div class="px-5 flex gap-2 mb-4 overflow-x-auto no-scrollbar">
         @foreach ($projects as $project)
-            <button wire:click="selectProject({{ $project->id }})"
-                    class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border {{ $activeProjectId === $project->id ? 'bg-ink-900 text-white border-ink-900' : 'bg-white dark:bg-ink-700 text-ink-700 dark:text-ink-100 border-ink-100 dark:border-ink-500' }}">
-                {{ $project->name }}
-            </button>
+            @php $isActive = $activeProjectId === $project->id; @endphp
+            <div class="relative shrink-0">
+                <button wire:click="selectProject({{ $project->id }})"
+                        class="text-sm font-disp font-bold px-4 py-2 rounded-full whitespace-nowrap border {{ $isActive ? 'bg-ink-900 text-white border-ink-900' : 'bg-white dark:bg-ink-700 text-ink-700 dark:text-ink-100 border-ink-100 dark:border-ink-500' }}">
+                    {{ $project->name }}
+                </button>
+                @if ($isActive && auth()->user()->canManageProject($project))
+                    <button wire:click="deleteProject({{ $project->id }})"
+                            wire:confirm="Hapus proyek &quot;{{ $project->name }}&quot;? Semua tugas di dalamnya akan ikut terhapus."
+                            class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-vest-500 text-white rounded-full grid place-items-center shadow"
+                            title="Hapus proyek">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                @endif
+            </div>
         @endforeach
         @if (auth()->user()->isOwner())
             <button wire:click="openNewProjectModal"

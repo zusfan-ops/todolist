@@ -61,6 +61,19 @@ class Board extends Component
         $this->dispatch('toast', message: 'Proyek dibuat');
     }
 
+    public function deleteProject(int $projectId): void
+    {
+        $project = auth()->user()->accessibleProjects()->findOrFail($projectId);
+
+        abort_unless(auth()->user()->canManageProject($project), 403);
+
+        $project->delete();
+
+        $this->activeProjectId = auth()->user()->accessibleProjects()->active()->orderBy('position')->value('id');
+
+        $this->dispatch('toast', message: 'Proyek dihapus');
+    }
+
     public function selectProject(int $projectId): void
     {
         $accessible = auth()->user()->accessibleProjects()->whereKey($projectId)->exists();
