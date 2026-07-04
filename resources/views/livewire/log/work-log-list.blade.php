@@ -4,7 +4,13 @@
 @endphp
 
 <div class="px-5 pt-6 space-y-5">
-    <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">Rekam Pekerjaan</h2>
+    <div class="flex items-center gap-2">
+        <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">Log</h2>
+        <div class="flex bg-ink-100 dark:bg-ink-600 rounded-lg p-0.5">
+            <span class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-sm">Riwayat</span>
+            <a href="{{ route('analytics') }}" wire:navigate class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md text-ink-500 dark:text-ink-300 hover:text-ink-900 dark:hover:text-white">Statistik</a>
+        </div>
+    </div>
 
     <div class="bg-ink-900 rounded-2xl p-5 text-white">
         <p class="text-xs uppercase tracking-wider text-ink-300 dark:text-ink-400 mb-3">Minggu ini</p>

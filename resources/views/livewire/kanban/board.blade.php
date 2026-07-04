@@ -33,6 +33,13 @@
         }
      }">
 
+    <div class="px-5 mb-4 flex items-center gap-2">
+        <div class="flex bg-ink-100 dark:bg-ink-600 rounded-lg p-0.5">
+            <a href="{{ route('todo') }}" wire:navigate class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md text-ink-500 dark:text-ink-300 hover:text-ink-900 dark:hover:text-white">List</a>
+            <span class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-sm">Board</span>
+        </div>
+    </div>
+
     <div class="px-5 flex gap-2 mb-4 overflow-x-auto no-scrollbar">
         @foreach ($projects as $project)
             <button wire:click="selectProject({{ $project->id }})"

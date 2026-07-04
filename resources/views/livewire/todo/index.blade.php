@@ -1,6 +1,12 @@
 <div class="px-5 pt-6 space-y-5">
     <div class="flex items-center justify-between">
-        <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">To Do</h2>
+        <div class="flex items-center gap-2">
+            <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">Tugas</h2>
+            <div class="flex bg-ink-100 dark:bg-ink-600 rounded-lg p-0.5">
+                <span class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-sm">List</span>
+                <a href="{{ route('kanban') }}" wire:navigate class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md text-ink-500 dark:text-ink-300 hover:text-ink-900 dark:hover:text-white">Board</a>
+            </div>
+        </div>
         @if ($doneCount > 0)
             <button wire:click="clearCompleted" class="text-xs text-ink-500 dark:text-ink-300 font-disp font-bold">Hapus yang selesai</button>
         @endif

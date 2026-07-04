@@ -22,6 +22,7 @@
           queued: 0,
           failed: 0,
           syncPanel: false,
+          moreSheet: false,
           failedItems: [],
           toast: '',
           showToast(msg) { this.toast = msg; setTimeout(() => this.toast = '', 2200) },
@@ -55,6 +56,7 @@
 
 <div class="w-full max-w-2xl mx-auto bg-white dark:bg-ink-900 sm:my-6 sm:rounded-[2rem] shadow-2xl sm:overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
 
+    {{-- SLIM HEADER --}}
     <header class="bg-ink-900 text-white px-5 pt-5 pb-4 shrink-0 relative overflow-hidden">
         <div class="hazard absolute top-0 left-0 right-0 h-1.5"></div>
         <div class="flex items-center justify-between mt-1">
@@ -63,27 +65,62 @@
                 <p class="text-ink-300 text-sm mt-0.5">{{ ucfirst(now(auth()->user()->displayTimezone())->translatedFormat('l, j F')) }}</p>
             </div>
             <div class="flex items-center gap-2">
-                <button @click="dark = !dark" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base leading-none"
-                        x-text="dark ? '☀️' : '🌙'"></button>
-                <button @click="openSyncPanel" class="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-full"
-                      :class="failed > 0 ? 'bg-brick-500/20 text-brick-100' : (!online || queued > 0 ? 'bg-vest-500/20 text-vest-100' : 'bg-leaf-500/20 text-leaf-100')">
-                    <span class="w-2 h-2 rounded-full" :class="failed > 0 ? 'bg-brick-500' : (!online || queued > 0 ? 'bg-vest-500 animate-pulse' : 'bg-leaf-500')"></span>
-                    <span x-text="failed > 0 ? failed + ' gagal' : (!online ? 'Offline' : (queued > 0 ? queued + ' antre' : 'Tersinkron'))"></span>
+                {{-- Notification bell --}}
+                <button class="relative w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    {{-- Sync status dot --}}
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-ink-900"
+                          :class="failed > 0 ? 'bg-brick-500' : (!online || queued > 0 ? 'bg-vest-500 animate-pulse' : 'bg-leaf-500')"></span>
                 </button>
-                <button @click="$dispatch('open-calculator')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">🧮</button>
-                <button @click="$dispatch('open-currency')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">💱</button>
+
+                {{-- Avatar dropdown --}}
                 <div class="relative" x-data="{ menuOpen: false }">
-                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
+                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center text-sm">
                         {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
                     </button>
                     <div x-show="menuOpen" x-cloak x-transition @click.outside="menuOpen = false"
-                         class="absolute right-0 top-11 w-48 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-40 text-ink-900 dark:text-white">
+                         class="absolute right-0 top-11 w-56 bg-white dark:bg-ink-700 rounded-xl shadow-xl overflow-hidden z-40 text-ink-900 dark:text-white text-sm">
+                        {{-- Dark mode --}}
+                        <button @click="dark = !dark; menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base" x-text="dark ? '☀️' : '🌙'"></span>
+                            <span class="font-medium">Mode <span x-text="dark ? 'Terang' : 'Gelap'"></span></span>
+                        </button>
+                        {{-- Sync status --}}
+                        <button @click="openSyncPanel; menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg grid place-items-center"
+                                  :class="failed > 0 ? 'bg-brick-100 dark:bg-brick-500/20' : (!online || queued > 0 ? 'bg-vest-100 dark:bg-vest-500/20' : 'bg-leaf-100 dark:bg-leaf-500/20')">
+                                <span class="w-2.5 h-2.5 rounded-full" :class="failed > 0 ? 'bg-brick-500' : (!online || queued > 0 ? 'bg-vest-500 animate-pulse' : 'bg-leaf-500')"></span>
+                            </span>
+                            <span>
+                                <span class="font-medium" x-text="failed > 0 ? 'Sinkronisasi gagal' : (!online ? 'Offline' : (queued > 0 ? 'Menyinkron...' : 'Tersinkron'))"></span>
+                                <span class="block text-[11px] text-ink-500 dark:text-ink-300" x-show="failed > 0" x-text="'(klik untuk detail)'"></span>
+                                <span class="block text-[11px] text-ink-500 dark:text-ink-300" x-show="queued > 0" x-text="queued + ' antrean'"></span>
+                            </span>
+                        </button>
+                        {{-- Calculator --}}
+                        <button @click="$dispatch('open-calculator'); menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">🧮</span>
+                            <span class="font-medium">Kalkulator</span>
+                        </button>
+                        {{-- Currency --}}
+                        <button @click="$dispatch('open-currency'); menuOpen = false" class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                            <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">💱</span>
+                            <span class="font-medium">Kurs USD/IDR</span>
+                        </button>
+                        {{-- Staff management --}}
                         @if (auth()->user()->isOwner())
-                            <a href="{{ route('staff') }}" wire:navigate class="block px-4 py-3.5 text-sm font-disp font-bold border-b border-ink-100 dark:border-ink-500">👥 Kelola Staf</a>
+                            <a href="{{ route('staff') }}" wire:navigate @click="menuOpen = false" class="flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 dark:border-ink-500 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors">
+                                <span class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-500 grid place-items-center text-base">👥</span>
+                                <span class="font-medium">Kelola Staf</span>
+                            </a>
                         @endif
+                        {{-- Logout --}}
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-3.5 text-sm font-disp font-bold text-brick-500">Keluar</button>
+                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-ink-50 dark:hover:bg-ink-600 transition-colors text-brick-500">
+                                <span class="w-8 h-8 rounded-lg bg-brick-100 dark:bg-brick-500/20 grid place-items-center text-base">🚪</span>
+                                <span class="font-medium">Keluar</span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -98,41 +135,101 @@
         <x-notification-banner />
     </div>
 
-    <main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+    <main class="flex-1 overflow-y-auto no-scrollbar pb-4">
         {{ $slot }}
     </main>
 
-    <button @click="$dispatch('open-quick-add')"
-            class="fixed sm:absolute bottom-20 right-5 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-vest-500 text-ink-900 text-2xl sm:text-4xl font-disp font-bold shadow-lg shadow-vest-500/40 grid place-items-center active:scale-95 transition-transform z-10">+</button>
+    {{-- BOTTOM NAV — 5 TAB --}}
+    <nav class="sticky sm:absolute inset-x-0 bottom-0 sm:inset-x-4 sm:bottom-4 bg-white dark:bg-ink-950 border-t border-ink-100 dark:border-ink-800 sm:rounded-[2rem] sm:border sm:shadow-xl sm:shadow-ink-900/30 flex items-center px-2 sm:px-3 z-20 pb-[env(safe-area-inset-bottom,0px)]"
+         style="height:66px">
+        @php
+            $navTabs = [
+                ['today', 'Hari Ini', 'M3.5 12a8.5 8.5 0 1 1 17 0 8.5 8.5 0 0 1-17 0ZM12 8v4l2.5 2.5'],
+                ['todo', 'Tugas', 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4'],
+                null, // + button (inline)
+                ['log', 'Log', 'M12 6v6l4 2M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z'],
+                ['more', 'Lainnya', 'M5 12h.01M12 12h.01M19 12h.01'],
+            ];
+        @endphp
 
-    <nav class="sticky sm:absolute inset-x-0 bottom-0 sm:inset-x-4 sm:bottom-4 bg-ink-900 dark:bg-ink-950 rounded-none sm:rounded-[2rem] shadow-xl shadow-ink-900/30 flex items-end px-1 sm:px-2 z-20 pb-[env(safe-area-inset-bottom,0px)]">
-        @foreach ([
-            ['today', 'Hari Ini', '☀️'],
-            ['todo', 'To Do', '✅'],
-            ['calendar', 'Kalender', '📅'],
-            ['notes', 'Catatan', '📝'],
-            ['kanban', 'Kanban', '▦'],
-            ['log', 'Log', '⏱'],
-            ['analytics', 'Analitik', '📊'],
-            ['photos', 'Foto', '📷'],
-        ] as [$routeName, $label, $icon])
-            <a href="{{ route($routeName) }}" wire:navigate
-               class="relative flex flex-col items-center justify-center gap-0 sm:gap-0.5 py-1 sm:py-1.5 flex-1 min-w-0
-                      {{ request()->routeIs($routeName) ? 'text-white' : 'text-ink-500' }}">
-                @if (request()->routeIs($routeName))
-                    <span class="absolute inset-0 bg-ink-700 dark:bg-white/10 rounded-2xl mx-0.5 sm:mx-1.5"></span>
-                @endif
-                <span class="relative z-10 text-base sm:text-xl leading-none">{{ $icon }}</span>
-                <span class="relative z-10 text-[7px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap {{ request()->routeIs($routeName) ? 'text-vest-500' : '' }}">{{ $label }}</span>
-            </a>
+        @foreach ($navTabs as $i => $tab)
+            @if ($tab === null)
+                {{-- FAB integrated in nav --}}
+                <button @click="$dispatch('open-quick-add')"
+                        class="grid place-items-center rounded-2xl -mt-5 shrink-0 shadow-lg mx-1"
+                        style="width:50px;height:50px;background:#F5A300;box-shadow:0 6px 14px rgba(245,163,0,.4)">
+                    <svg class="w-6 h-6" style="color:#141B2E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            @elseif ($tab[0] === 'more')
+                {{-- "Lainnya" button — opens sheet instead of route --}}
+                <button @click="moreSheet = true"
+                        class="relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl transition-colors"
+                        :class="moreSheet ? 'text-amber-500' : 'text-ink-400'">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                    </svg>
+                    <span class="text-[9px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap">{{ $tab[1] }}</span>
+                </button>
+            @else
+                <a href="{{ route($tab[0]) }}" wire:navigate
+                   class="relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl transition-all duration-200"
+                   :class="'{{ request()->routeIs($tab[0]) }}' === '1' ? 'text-amber-500' : 'text-ink-400'"
+                   x-data="{ active: '{{ request()->routeIs($tab[0]) }}' === '1' }"
+                   :style="active ? 'background:rgba(245,163,0,.12)' : ''">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="{{ $tab[2] }}"/>
+                    </svg>
+                    <span class="text-[9px] leading-tight sm:text-[10px] font-disp font-bold whitespace-nowrap">{{ $tab[1] }}</span>
+                </a>
+            @endif
         @endforeach
     </nav>
+
+    {{-- "LAINNYA" BOTTOM SHEET --}}
+    <div x-show="moreSheet" x-cloak @click.self="moreSheet = false"
+         class="absolute inset-0 bg-ink-900/45 flex items-end z-30"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="w-full bg-white dark:bg-ink-700 rounded-t-3xl p-5"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="translate-y-full"
+             x-transition:enter-end="translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="translate-y-0"
+             x-transition:leave-end="translate-y-full">
+            <div class="w-9 h-1 rounded-full mx-auto mb-4 bg-ink-200 dark:bg-ink-500"></div>
+            <div class="grid grid-cols-4 gap-3">
+                @php
+                    $sheetItems = [
+                        ['calendar', 'Kalender', 'M4 5h16v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5ZM4 10h16M9 3v4M15 3v4'],
+                        ['notes', 'Catatan', 'M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM14 3v5h5M8 13h8M8 17h5'],
+                        ['photos', 'Foto', 'M4 8h3l2-2h6l2 2h3v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8ZM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
+                        ['kanban', 'Kanban', 'M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5ZM14 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5ZM14 13a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-5ZM4 14a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4Z'],
+                    ];
+                @endphp
+                @foreach ($sheetItems as [$route, $label, $path])
+                    <a href="{{ route($route) }}" wire:navigate @click="moreSheet = false"
+                       class="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-ink-50 dark:bg-ink-600 hover:bg-ink-100 dark:hover:bg-ink-500 transition-colors">
+                        <svg class="w-6 h-6" style="color:#4A5670;color:var(--tw-color)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="{{ $path }}"/>
+                        </svg>
+                        <span class="text-[10px] font-bold text-ink-700 dark:text-ink-200">{{ $label }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
 
     <livewire:task-detail-sheet />
     <livewire:quick-add />
     <x-calculator-modal />
     <x-currency-modal />
 
+    {{-- SYNC PANEL --}}
     <div x-show="syncPanel" x-cloak @click.self="syncPanel = false" class="absolute inset-0 bg-ink-900/50 flex items-end z-30">
         <div class="bg-white dark:bg-ink-700 w-full rounded-t-3xl max-h-[70%] overflow-y-auto no-scrollbar p-5">
             <div class="flex items-center justify-between mb-3">
@@ -157,6 +254,7 @@
         </div>
     </div>
 
+    {{-- TOAST --}}
     <div x-show="toast" x-cloak x-transition
          class="fixed sm:absolute bottom-24 left-1/2 -translate-x-1/2 bg-ink-900 dark:bg-ink-950 text-white text-sm px-5 py-3 rounded-full shadow-lg z-30 whitespace-nowrap"
          x-text="toast"></div>

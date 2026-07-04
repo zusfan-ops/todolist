@@ -1,6 +1,12 @@
 <div class="px-5 pt-5 space-y-5">
     <div class="flex items-center justify-between">
-        <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">Analitik</h2>
+        <div class="flex items-center gap-2">
+            <h2 class="font-disp font-bold text-ink-900 dark:text-white text-base uppercase tracking-wider">Log</h2>
+            <div class="flex bg-ink-100 dark:bg-ink-600 rounded-lg p-0.5">
+                <a href="{{ route('log') }}" wire:navigate class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md text-ink-500 dark:text-ink-300 hover:text-ink-900 dark:hover:text-white">Riwayat</a>
+                <span class="text-[10px] font-disp font-bold px-2.5 py-1 rounded-md bg-white dark:bg-ink-800 text-ink-900 dark:text-white shadow-sm">Statistik</span>
+            </div>
+        </div>
         <div class="flex gap-1 bg-ink-100 dark:bg-ink-700 rounded-xl p-0.5">
             <button wire:click="setPeriod('weekly')"
                     class="text-xs font-disp font-bold px-3 py-1.5 rounded-lg transition-colors
