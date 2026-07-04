@@ -15,7 +15,7 @@ class TaskPhotoController extends Controller
 {
     public function store(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'file' => ['required', 'image', 'max:5120'],
@@ -48,14 +48,14 @@ class TaskPhotoController extends Controller
 
     public function indexForTask(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         return TaskPhotoResource::collection($task->photos()->latest()->get());
     }
 
     public function indexForProject(Request $request, Project $project)
     {
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($project), 403);
 
         $photos = TaskPhoto::query()
             ->whereHas('task', fn ($q) => $q->where('project_id', $project->id))
@@ -68,7 +68,7 @@ class TaskPhotoController extends Controller
 
     public function destroy(Request $request, TaskPhoto $photo)
     {
-        abort_unless($photo->task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($photo->task->project), 403);
 
         \Illuminate\Support\Facades\Storage::disk($photo->disk)->delete([$photo->path, $photo->thumb_path]);
         $photo->delete();

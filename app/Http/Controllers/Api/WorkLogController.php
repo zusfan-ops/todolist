@@ -23,7 +23,7 @@ class WorkLogController extends Controller
 
     public function start(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'client_uuid' => ['sometimes', 'uuid'],
@@ -63,7 +63,7 @@ class WorkLogController extends Controller
 
     public function storeManual(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'started_at' => ['required', 'date'],

@@ -40,16 +40,22 @@
                 {{ $project->name }}
             </button>
         @endforeach
-        <button wire:click="openNewProjectModal"
-                class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border-2 border-dashed border-ink-300 text-ink-500 shrink-0">
-            + Proyek
-        </button>
+        @if (auth()->user()->isOwner())
+            <button wire:click="openNewProjectModal"
+                    class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border-2 border-dashed border-ink-300 text-ink-500 shrink-0">
+                + Proyek
+            </button>
+        @endif
     </div>
 
     @if ($projects->isEmpty())
         <div class="px-5">
             <p class="text-xs text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-6 text-center">
-                Belum ada proyek. Buat proyek pertamamu dengan tombol "+ Proyek" di atas.
+                @if (auth()->user()->isOwner())
+                    Belum ada proyek. Buat proyek pertamamu dengan tombol "+ Proyek" di atas.
+                @else
+                    Belum ada proyek yang ditugaskan untukmu. Hubungi pemilik akun.
+                @endif
             </p>
         </div>
     @endif

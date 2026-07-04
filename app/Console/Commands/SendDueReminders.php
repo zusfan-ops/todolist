@@ -26,9 +26,10 @@ class SendDueReminders extends Command
         foreach (User::all() as $user) {
             $tz = $user->displayTimezone();
             $targetDate = $tomorrow ? now($tz)->addDay()->toDateString() : now($tz)->toDateString();
+            $projectIds = $user->accessibleProjects()->pluck('id');
 
             $count = Task::query()
-                ->whereHas('project', fn ($q) => $q->where('user_id', $user->id))
+                ->whereIn('project_id', $projectIds)
                 ->whereHas('kanbanColumn', fn ($q) => $q->where('is_done_column', false))
                 ->whereDate('due_date', $targetDate)
                 ->count();

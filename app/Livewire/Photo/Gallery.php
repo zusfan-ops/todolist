@@ -21,8 +21,10 @@ class Gallery extends Component
 
     public function render()
     {
+        $projectIds = auth()->user()->accessibleProjects()->pluck('id');
+
         $photos = TaskPhoto::query()
-            ->whereHas('task.project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereHas('task', fn ($q) => $q->whereIn('project_id', $projectIds))
             ->when($this->filterType, fn ($q) => $q->where('type', $this->filterType))
             ->with('task')
             ->latest()
@@ -30,7 +32,7 @@ class Gallery extends Component
             ->get();
 
         $tasks = Task::query()
-            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereIn('project_id', $projectIds)
             ->orderBy('title')
             ->get();
 

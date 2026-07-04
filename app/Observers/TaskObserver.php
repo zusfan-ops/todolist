@@ -10,7 +10,7 @@ class TaskObserver
     public function created(Task $task): void
     {
         $task->activities()->create([
-            'user_id' => $task->project->user_id,
+            'user_id' => auth()->id() ?? $task->project->user_id,
             'event' => 'created',
             'meta' => null,
         ]);

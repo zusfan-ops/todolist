@@ -135,7 +135,7 @@ class Task extends Model
             static::renumberColumnIfNeeded($column->id);
 
             $this->activities()->create([
-                'user_id' => $this->project->user_id,
+                'user_id' => auth()->id() ?? $this->project->user_id,
                 'event' => $completedWithIncomplete ? 'completed_with_incomplete_checklist' : 'moved',
                 'meta' => ['from' => $fromColumn?->slug, 'to' => $column->slug],
             ]);

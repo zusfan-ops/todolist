@@ -11,13 +11,17 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $projects = $request->user()->projects()->active()->withCount('tasks')->orderBy('position')->get();
+        $projects = $request->user()->accessibleProjects()->active()->withCount('tasks')->orderBy('position')->get();
 
         return ProjectResource::collection($projects);
     }
 
     public function store(Request $request)
     {
+        // Staff work inside projects assigned to them by the owner — they
+        // don't spin up new ones.
+        abort_if($request->user()->isStaff(), 403);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'color' => ['required', 'string', 'size:7'],
@@ -41,7 +45,7 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canManageProject($project), 403);
 
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:100'],

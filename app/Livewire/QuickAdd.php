@@ -8,7 +8,7 @@ class QuickAdd extends Component
 {
     public function render()
     {
-        $projects = auth()->user()->projects()->active()->orderBy('position')->get();
+        $projects = auth()->user()->accessibleProjects()->active()->orderBy('position')->get();
 
         return view('livewire.quick-add', [
             'projects' => $projects,

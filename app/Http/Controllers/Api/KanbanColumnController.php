@@ -13,14 +13,16 @@ class KanbanColumnController extends Controller
 {
     public function index(Request $request, Project $project)
     {
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($project), 403);
 
         return KanbanColumnResource::collection($project->kanbanColumns);
     }
 
+    // Column structure (create/edit/delete) is owner-only — staff work
+    // within the columns an owner has already set up.
     public function store(Request $request, Project $project)
     {
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canManageProject($project), 403);
 
         if ($project->kanbanColumns()->count() >= 6) {
             return response()->json([
@@ -48,7 +50,7 @@ class KanbanColumnController extends Controller
 
     public function update(Request $request, KanbanColumn $column)
     {
-        abort_unless($column->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canManageProject($column->project), 403);
 
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:50'],
@@ -63,7 +65,7 @@ class KanbanColumnController extends Controller
 
     public function destroy(Request $request, KanbanColumn $column)
     {
-        abort_unless($column->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canManageProject($column->project), 403);
 
         $taskCount = $column->tasks()->count();
 

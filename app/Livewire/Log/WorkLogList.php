@@ -103,7 +103,7 @@ class WorkLogList extends Component
             ->get();
 
         $tasks = Task::query()
-            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereIn('project_id', auth()->user()->accessibleProjects()->pluck('id'))
             ->orderBy('title')
             ->get();
 

@@ -12,7 +12,7 @@ class ChecklistItemObserver
 
         if ($item->wasChanged('is_done') && $item->is_done) {
             $item->task->activities()->create([
-                'user_id' => $item->task->project->user_id,
+                'user_id' => auth()->id() ?? $item->task->project->user_id,
                 'event' => 'checklist_done',
                 'meta' => ['body' => $item->body],
             ]);

@@ -12,7 +12,7 @@ class ChecklistItemController extends Controller
 {
     public function store(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'body' => ['required', 'string', 'max:300'],
@@ -35,7 +35,7 @@ class ChecklistItemController extends Controller
 
     public function update(Request $request, ChecklistItem $item)
     {
-        abort_unless($item->task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($item->task->project), 403);
 
         $data = $request->validate([
             'is_done' => ['required', 'boolean'],
@@ -52,7 +52,7 @@ class ChecklistItemController extends Controller
 
     public function destroy(Request $request, ChecklistItem $item)
     {
-        abort_unless($item->task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($item->task->project), 403);
 
         $task = $item->task;
         $item->delete();

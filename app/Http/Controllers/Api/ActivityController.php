@@ -11,7 +11,7 @@ class ActivityController extends Controller
 {
     public function index(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         return ActivityResource::collection($task->activities);
     }

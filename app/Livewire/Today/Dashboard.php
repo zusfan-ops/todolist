@@ -16,10 +16,11 @@ class Dashboard extends Component
     {
         $tz = auth()->user()->displayTimezone();
         $today = Carbon::now($tz)->toDateString();
+        $projectIds = auth()->user()->accessibleProjects()->pluck('id');
 
         $baseQuery = fn () => Task::query()
             ->with(['project', 'checklistItems'])
-            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereIn('project_id', $projectIds)
             ->whereHas('kanbanColumn', fn ($q) => $q->where('is_done_column', false));
 
         $dueToday = $baseQuery()
@@ -49,7 +50,7 @@ class Dashboard extends Component
         }
 
         $completedToday = Task::query()
-            ->whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereIn('project_id', $projectIds)
             ->whereDate('completed_at', $today)
             ->count();
 

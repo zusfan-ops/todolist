@@ -61,12 +61,21 @@
                 </button>
                 <button @click="$dispatch('open-calculator')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">🧮</button>
                 <button @click="$dispatch('open-currency')" class="w-9 h-9 rounded-full bg-white/10 text-white grid place-items-center text-base">💱</button>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
+                <div class="relative" x-data="{ menuOpen: false }">
+                    <button @click="menuOpen = !menuOpen" class="w-9 h-9 rounded-full bg-vest-500 text-ink-900 font-disp font-bold grid place-items-center">
                         {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
                     </button>
-                </form>
+                    <div x-show="menuOpen" x-cloak x-transition @click.outside="menuOpen = false"
+                         class="absolute right-0 top-11 w-44 bg-white rounded-xl shadow-xl overflow-hidden z-40 text-ink-900">
+                        @if (auth()->user()->isOwner())
+                            <a href="{{ route('staff') }}" wire:navigate class="block px-4 py-3 text-xs font-disp font-bold border-b border-ink-100">👥 Kelola Staf</a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-4 py-3 text-xs font-disp font-bold text-brick-500">Keluar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </header>

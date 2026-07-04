@@ -25,11 +25,13 @@ class Board extends Component
 
     public function mount(): void
     {
-        $this->activeProjectId = auth()->user()->projects()->active()->orderBy('position')->value('id');
+        $this->activeProjectId = auth()->user()->accessibleProjects()->active()->orderBy('position')->value('id');
     }
 
     public function openNewProjectModal(): void
     {
+        abort_if(auth()->user()->isStaff(), 403);
+
         $this->reset(['newProjectName', 'newProjectColor']);
         $this->newProjectColor = self::COLOR_PALETTE[0];
         $this->showNewProjectModal = true;
@@ -37,6 +39,8 @@ class Board extends Component
 
     public function createProject(): void
     {
+        abort_if(auth()->user()->isStaff(), 403);
+
         $this->validate([
             'newProjectName' => ['required', 'string', 'max:100'],
             'newProjectColor' => ['required', 'string', 'size:7'],
@@ -59,17 +63,19 @@ class Board extends Component
 
     public function selectProject(int $projectId): void
     {
-        $owned = auth()->user()->projects()->whereKey($projectId)->exists();
+        $accessible = auth()->user()->accessibleProjects()->whereKey($projectId)->exists();
 
-        if ($owned) {
+        if ($accessible) {
             $this->activeProjectId = $projectId;
         }
     }
 
     public function moveTask(int $taskId, int $toColumnId, ?int $position = null, bool $force = false): void
     {
-        $task = Task::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))->findOrFail($taskId);
-        $column = KanbanColumn::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))->findOrFail($toColumnId);
+        $projectIds = auth()->user()->accessibleProjects()->pluck('id');
+
+        $task = Task::whereIn('project_id', $projectIds)->findOrFail($taskId);
+        $column = KanbanColumn::whereIn('project_id', $projectIds)->findOrFail($toColumnId);
 
         try {
             $result = $task->moveTo($column, $position, $force);
@@ -96,7 +102,7 @@ class Board extends Component
 
     public function render()
     {
-        $projects = auth()->user()->projects()->active()->orderBy('position')->get();
+        $projects = auth()->user()->accessibleProjects()->active()->orderBy('position')->get();
 
         // activeProjectId is a public Livewire property — a client could set it
         // directly in the request payload, so ownership is re-checked here too

@@ -11,6 +11,8 @@ class ReportController extends Controller
 {
     public function weekly(Request $request, WeeklyReportService $reports)
     {
+        abort_unless($request->user()->canViewReports(), 403);
+
         $weekParam = $request->query('week', now()->format('o-\WW'));
 
         $filename = $reports->generatePdf($request->user(), $weekParam);

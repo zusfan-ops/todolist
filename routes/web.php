@@ -5,6 +5,8 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Kanban\Board;
 use App\Livewire\Log\WorkLogList;
 use App\Livewire\Photo\Gallery;
+use App\Livewire\Staff\AcceptInvite;
+use App\Livewire\Staff\Index as StaffIndex;
 use App\Livewire\Today\Dashboard;
 use App\Livewire\Todo\Index as TodoIndex;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +25,7 @@ Route::get('/privacy', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
     Route::get('/register', Register::class)->name('register');
+    Route::get('/invite/{token}', AcceptInvite::class)->name('invite.accept');
 });
 
 Route::post('/logout', function () {
@@ -39,4 +42,5 @@ Route::middleware('auth')->prefix('app')->group(function () {
     Route::get('/kanban', Board::class)->name('kanban');
     Route::get('/log', WorkLogList::class)->name('log');
     Route::get('/photos', Gallery::class)->name('photos');
+    Route::get('/staff', StaffIndex::class)->name('staff');
 });

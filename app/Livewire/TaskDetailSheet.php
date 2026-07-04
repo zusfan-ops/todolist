@@ -30,7 +30,9 @@ class TaskDetailSheet extends Component
 
     public function toggleChecklist(int $itemId): void
     {
-        $item = ChecklistItem::whereHas('task', fn ($q) => $q->whereHas('project', fn ($q2) => $q2->where('user_id', auth()->id())))
+        $projectIds = auth()->user()->accessibleProjects()->pluck('id');
+
+        $item = ChecklistItem::whereHas('task', fn ($q) => $q->whereIn('project_id', $projectIds))
             ->findOrFail($itemId);
 
         $item->update([
@@ -79,6 +81,8 @@ class TaskDetailSheet extends Component
     public function deleteTask(): void
     {
         $task = $this->task();
+        abort_unless(auth()->user()->canManageProject($task->project), 403);
+
         $title = $task->title;
         $task->delete();
 
@@ -90,7 +94,9 @@ class TaskDetailSheet extends Component
 
     private function task(): Task
     {
-        return Task::whereHas('project', fn ($q) => $q->where('user_id', auth()->id()))
+        $projectIds = auth()->user()->accessibleProjects()->pluck('id');
+
+        return Task::whereIn('project_id', $projectIds)
             ->with(['project', 'kanbanColumn', 'checklistItems', 'activities', 'photos', 'workLogs'])
             ->findOrFail($this->taskId);
     }

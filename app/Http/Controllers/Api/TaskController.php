@@ -15,7 +15,7 @@ class TaskController extends Controller
 {
     public function index(Request $request, Project $project)
     {
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($project), 403);
 
         $tasks = $project->tasks()
             ->with(['kanbanColumn', 'checklistItems', 'workLogs'])
@@ -31,9 +31,10 @@ class TaskController extends Controller
     {
         $tz = $request->user()->displayTimezone();
         $today = now($tz)->toDateString();
+        $projectIds = $request->user()->accessibleProjects()->pluck('id');
 
         $baseQuery = fn () => Task::query()
-            ->whereHas('project', fn ($q) => $q->where('user_id', $request->user()->id))
+            ->whereIn('project_id', $projectIds)
             ->whereHas('kanbanColumn', fn ($q) => $q->where('is_done_column', false))
             ->with(['kanbanColumn', 'checklistItems', 'workLogs'])
             ->withCount('photos');
@@ -49,7 +50,7 @@ class TaskController extends Controller
             ->sum('duration_minutes');
 
         $completedToday = Task::query()
-            ->whereHas('project', fn ($q) => $q->where('user_id', $request->user()->id))
+            ->whereIn('project_id', $projectIds)
             ->whereDate('completed_at', $today)
             ->count();
 
@@ -80,7 +81,7 @@ class TaskController extends Controller
         ]);
 
         $project = Project::findOrFail($data['project_id']);
-        abort_unless($project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($project), 403);
 
         $backlog = $project->kanbanColumns()->where('slug', 'backlog')->firstOrFail();
 
@@ -101,7 +102,7 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'title' => ['sometimes', 'string', 'max:200'],
@@ -118,7 +119,7 @@ class TaskController extends Controller
 
     public function move(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
             'to_column_id' => ['required', 'exists:kanban_columns,id'],
@@ -149,9 +150,10 @@ class TaskController extends Controller
             ]);
     }
 
+    // Deleting a task is a structural/destructive action — owner-only.
     public function destroy(Request $request, Task $task)
     {
-        abort_unless($task->project->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->canManageProject($task->project), 403);
 
         $task->delete();
 
