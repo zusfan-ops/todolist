@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'kerjaku-v1';
+const CACHE_VERSION = 'kerjaku-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -39,7 +39,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Built assets are content-hashed — safe to cache aggressively (cache-first).
-    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/')) {
+    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/livewire/')) {
         event.respondWith(cacheFirst(request, STATIC_CACHE));
         return;
     }
@@ -53,7 +53,14 @@ self.addEventListener('fetch', (event) => {
     // Page navigations — network-first with offline fallback page.
     if (request.mode === 'navigate') {
         event.respondWith(
-            networkFirst(request, RUNTIME_CACHE).catch(() => caches.match('/offline.html'))
+            networkFirst(request, RUNTIME_CACHE)
+                .then((response) => {
+                    if (!response || response.status >= 500) {
+                        return caches.match('/offline.html').then((fallback) => fallback ?? response);
+                    }
+                    return response;
+                })
+                .catch(() => caches.match('/offline.html'))
         );
         return;
     }
