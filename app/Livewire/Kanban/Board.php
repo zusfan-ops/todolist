@@ -5,6 +5,7 @@ namespace App\Livewire\Kanban;
 use App\Exceptions\ChecklistIncompleteException;
 use App\Models\KanbanColumn;
 use App\Models\Task;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -14,9 +15,46 @@ class Board extends Component
 {
     public ?int $activeProjectId = null;
 
+    public bool $showNewProjectModal = false;
+
+    public string $newProjectName = '';
+
+    public string $newProjectColor = '#2A6DD6';
+
+    public const COLOR_PALETTE = ['#2A6DD6', '#7A4F2B', '#2F9E6E', '#D6482F', '#F5A300', '#6D5FD1'];
+
     public function mount(): void
     {
         $this->activeProjectId = auth()->user()->projects()->active()->orderBy('position')->value('id');
+    }
+
+    public function openNewProjectModal(): void
+    {
+        $this->reset(['newProjectName', 'newProjectColor']);
+        $this->newProjectColor = self::COLOR_PALETTE[0];
+        $this->showNewProjectModal = true;
+    }
+
+    public function createProject(): void
+    {
+        $this->validate([
+            'newProjectName' => ['required', 'string', 'max:100'],
+            'newProjectColor' => ['required', 'string', 'size:7'],
+        ]);
+
+        $position = auth()->user()->projects()->count();
+
+        $project = auth()->user()->projects()->create([
+            'name' => $this->newProjectName,
+            'color' => $this->newProjectColor,
+            'position' => $position,
+            'client_uuid' => (string) Str::uuid(),
+        ]);
+
+        $this->showNewProjectModal = false;
+        $this->activeProjectId = $project->id;
+
+        $this->dispatch('toast', message: 'Proyek dibuat');
     }
 
     public function selectProject(int $projectId): void

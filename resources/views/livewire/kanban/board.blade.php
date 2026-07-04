@@ -40,7 +40,19 @@
                 {{ $project->name }}
             </button>
         @endforeach
+        <button wire:click="openNewProjectModal"
+                class="text-xs font-disp font-bold px-3 py-1.5 rounded-full whitespace-nowrap border-2 border-dashed border-ink-300 text-ink-500 shrink-0">
+            + Proyek
+        </button>
     </div>
+
+    @if ($projects->isEmpty())
+        <div class="px-5">
+            <p class="text-xs text-ink-500 bg-white border border-dashed border-ink-300 rounded-xl p-6 text-center">
+                Belum ada proyek. Buat proyek pertamamu dengan tombol "+ Proyek" di atas.
+            </p>
+        </div>
+    @endif
 
     <div class="kanban-scroll flex gap-3 overflow-x-auto px-5 pb-2 no-scrollbar">
         @foreach ($columns as $column)
@@ -65,4 +77,28 @@
         @endforeach
     </div>
     <p class="text-center text-[10px] text-ink-500 mt-1">Geser kartu antar kolom &middot; geser layar untuk kolom lain</p>
+
+    @if ($showNewProjectModal)
+        <div wire:click.self="$set('showNewProjectModal', false)" class="absolute inset-0 bg-ink-900/50 flex items-end z-20">
+            <div class="bg-white w-full rounded-t-3xl p-5">
+                <h3 class="font-disp font-bold text-ink-900 mb-3">Proyek baru</h3>
+                <input wire:model="newProjectName" wire:keydown.enter="createProject" placeholder="Nama proyek (mis. Cak Goto Cabang 2)" autofocus
+                       class="w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vest-500">
+                @error('newProjectName') <p class="text-brick-500 text-xs mt-1">{{ $message }}</p> @enderror
+
+                <div class="flex gap-2 mt-3">
+                    @foreach (\App\Livewire\Kanban\Board::COLOR_PALETTE as $color)
+                        <button type="button" wire:click="$set('newProjectColor', '{{ $color }}')"
+                                class="w-9 h-9 rounded-full border-2 {{ $newProjectColor === $color ? 'border-ink-900' : 'border-transparent' }}"
+                                style="background: {{ $color }}"></button>
+                    @endforeach
+                </div>
+
+                <button wire:click="createProject" class="w-full bg-ink-900 text-white font-disp font-bold py-3.5 rounded-xl mt-4">
+                    <span wire:loading.remove wire:target="createProject">Buat Proyek</span>
+                    <span wire:loading wire:target="createProject">Menyimpan…</span>
+                </button>
+            </div>
+        </div>
+    @endif
 </div>
